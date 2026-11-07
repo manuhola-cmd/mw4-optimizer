@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MW4 FPS Optimizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f0c; --panel:#161a14; --panel2:#1d2219; --line:#2c3326;
+  --text:#e7eadf; --muted:#9aa18f; --accent:#b6e33a; --accent2:#7fa31f;
+  --warn:#f2b632; --bad:#ef5b4c; --good:#6fd88a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,sans-serif}
+header{padding:28px 20px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#141a10,transparent)}
+header .wrap,main{max-width:1100px;margin:0 auto}
+h1{font-family:Rajdhani,sans-serif;font-weight:700;font-size:34px;letter-spacing:.04em;margin:0;text-transform:uppercase}
+h1 span{color:var(--accent)}
+header p{margin:6px 0 0;color:var(--muted);max-width:720px}
+main{padding:20px;display:grid;grid-template-columns:340px 1fr;gap:20px}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.card h2{font-family:Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.06em;font-size:18px;margin:0 0 12px;color:var(--accent)}
+label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
+select,input[type=number]{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:9px 10px;font:inherit}
+select:focus,input:focus{outline:2px solid var(--accent2);border-color:var(--accent2)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1;min-width:90px;background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:8px 6px;font:600 13px Inter;cursor:pointer}
+.seg button.on{background:var(--accent);color:#111;border-color:var(--accent)}
+.check{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:14px;color:var(--text);text-transform:none;letter-spacing:0}
+.check input{accent-color:var(--accent);width:16px;height:16px}
+.sticky{position:sticky;top:12px}
+.result-top{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:600px){.result-top{grid-template-columns:1fr}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.stat .k{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.stat .v{font-family:Rajdhani,sans-serif;font-size:30px;font-weight:700;line-height:1.1;margin-top:4px}
+.stat .s{font-size:13px;color:var(--muted)}
+.ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.alerts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.alert{border-left:3px solid var(--warn);background:#221d10;padding:10px 12px;border-radius:6px;font-size:14px}
+.alert.bad{border-color:var(--bad);background:#261412;color:var(--text)}
+.alert.info{border-color:var(--accent);background:#1a2112}
+.alert b{color:var(--text)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tabs button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:8px 14px;border-radius:6px;font:600 14px Rajdhani,sans-serif;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.tabs button.on{color:#111;background:var(--accent);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid #22281e;vertical-align:top}
+td.n{color:var(--muted);width:32px}
+td.val{font-weight:600}
+tr.sub td{background:var(--panel2);font-family:Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+.tag.chg{background:var(--accent);color:#111}
+.tag.keep{background:#2a3024;color:var(--muted)}
+.note{color:var(--muted);font-size:12.5px;font-weight:400}
+.filter{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:0 0 10px}
+.filter input{accent-color:var(--accent)}
+.help{margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13.5px}
+.help summary{cursor:pointer;color:var(--accent);font-weight:600}
+.help ol{padding-left:18px;margin:10px 0 4px}
+.help li{margin-bottom:10px}
+.help pre{background:#0a0c09;border:1px solid var(--line);border-radius:6px;padding:8px;white-space:pre-wrap;word-break:break-all;font-size:12px;margin:6px 0}
+.help input[type=text]{width:100%;margin-top:6px;background:#0a0c09;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px;font:inherit}
+.copy.small{margin:0;padding:5px 10px;font-size:12px}
+kbd{background:#2a3024;border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px}
+.partout{margin-top:8px}
+.partout a{color:var(--accent)}
+.foot{color:var(--muted);font-size:12.5px;margin-top:14px}
+.copy{background:transparent;border:1px solid var(--accent2);color:var(--accent);border-radius:6px;padding:7px 12px;font:600 13px Inter;cursor:pointer;margin-left:auto}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>MW4 <span>FPS</span> Optimizer</h1>
+</div></header>
+
+<main>
+  <section>
+    <div class="card sticky">
+      <h2>Your PC</h2>
+      <label for="gpu">Graphics card (GPU)</label>
+      <select id="gpu"></select>
+      <label for="cpu">Processor (CPU)</label>
+      <select id="cpu"></select>
+      <div class="row">
+        <div><label for="ramGb">RAM (GB)</label>
+          <select id="ramGb"><option value="">Select…</option><option>8</option><option>16</option><option>32</option><option>64</option></select></div>
+        <div><label for="ramType">Type</label>
+          <select id="ramType"><option value="">Select…</option><option value="ddr4">DDR4</option><option value="ddr5">DDR5</option></select></div>
+      </div>
+      <label for="ramSpeed">RAM speed (MT/s)</label>
+      <input id="ramSpeed" type="number" placeholder="e.g. 6000" min="1600" max="9000" step="100">
+      <details class="help">
+        <summary>How do I check my RAM speed?</summary>
+        <ol>
+          <li><b>Current speed:</b> press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> to open Task Manager → <b>Performance</b> tab → <b>Memory</b>. At the bottom it shows <b>Speed</b> (e.g. 4800 MT/s). Enter that number in the field above.</li>
+          <li><b>Open PowerShell:</b> click the <b>Start</b> button (the Windows logo), type <b>PowerShell</b> and press <kbd>Enter</kbd>. A blue or black window opens.</li>
+          <li><b>Copy this command</b> with the button, paste it into PowerShell with <kbd>Ctrl</kbd>+<kbd>V</kbd> (or right-click) and press <kbd>Enter</kbd>:
+            <pre id="psCmd">Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer, PartNumber</pre>
+            <button type="button" class="copy small" id="copyPs">Copy command</button>
+          </li>
+          <li><b>Copy the PartNumber</b> it shows (the long code, e.g. <i>F5-6000J3038F16G</i>) and paste it here:
+            <input id="partNum" type="text" placeholder="Paste your PartNumber here" autocomplete="off">
+            <div id="partOut" class="partout"></div>
+          </li>
+        </ol>
+      </details>
+
+      <h2 style="margin-top:20px">Your monitor</h2>
+      <div class="row">
+        <div><label for="res">Resolution</label>
+          <select id="res"><option value="">Select…</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></div>
+        <div><label for="hz">Hz / FPS target</label>
+          <input id="hz" type="number" placeholder="e.g. 144" min="30" max="500"></div>
+      </div>
+
+      <label class="check"><input type="checkbox" id="dual"> I use two (or more) monitors</label>
+      <label class="check"><input type="checkbox" id="vrr"> My monitor has G-Sync / FreeSync</label>
+      <details class="help">
+        <summary>How do I know if my monitor has G-Sync / FreeSync?</summary>
+        <ol>
+          <li><b>Check your GPU software:</b>
+            <br><b>NVIDIA:</b> right-click the desktop → <b>NVIDIA Control Panel</b> → in the left menu under <b>Display</b>, look for <b>Set up G-SYNC</b>. If it's there, your monitor supports it.
+            <br><b>AMD:</b> open <b>AMD Software: Adrenalin</b> → <b>Gaming</b> → <b>Display</b>. If you see <b>AMD FreeSync</b>, your monitor supports it.</li>
+          <li><b>Check the monitor's own menu:</b> use the buttons on the monitor and look for <b>FreeSync</b>, <b>Adaptive-Sync</b>, <b>G-Sync</b> or <b>VRR</b>. Turn it <b>On</b>. Many monitors ship with it off, and then step 1 won't show the option.</li>
+          <li><b>Still not sure?</b> Find your monitor's model on the sticker on the back, or in Windows: <b>Settings → System → Display → Advanced display</b>. Search the model on Google with "FreeSync" or "G-Sync".</li>
+          <li><b>Use a DisplayPort cable</b> if you can. With NVIDIA cards, many monitors only enable G-Sync/FreeSync over DisplayPort, not HDMI.</li>
+        </ol>
+        <p style="margin:4px 0 2px">If you found any of these, <b>check the box above</b>. If not, leave it unchecked.</p>
+      </details>
+
+      <h2 style="margin-top:20px">How you play</h2>
+      <label for="fov">Field of View (FOV)</label>
+      <input id="fov" type="number" placeholder="60–120 (e.g. 105)" min="60" max="120" step="1">
+      <label>Mode</label>
+      <div class="seg" id="mode">
+        <button data-v="mp" class="on">Multiplayer</button>
+        <button data-v="wz">Warzone / DMZ</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card" id="empty" style="display:none"><h2>Almost there</h2><p class="note" style="font-size:14px;margin:0">Fill in every field on the left (GPU, CPU, RAM, resolution, Hz and FOV) to see the settings you need to change.</p></div>
+    <div id="results">
+    <div class="result-top">
+      <div class="stat"><div class="k">Estimated FPS</div><div class="v" id="estFps">–</div><div class="s" id="estSub"></div></div>
+      <div class="stat"><div class="k">Adjustments</div><div class="v" id="tierName">–</div><div class="s" id="tierSub"></div></div>
+      <div class="stat"><div class="k">FPS limit</div><div class="v" id="capVal">–</div><div class="s">Custom Frame Rate Limit</div></div>
+    </div>
+
+    <div class="alerts" id="alerts"></div>
+
+    <div class="card">
+      <div class="bar">
+        <div class="tabs" id="tabs">
+          <button data-t="display" class="on">Display</button>
+          <button data-t="quality">Quality</button>
+          <button data-t="advanced">Advanced Quality</button>
+          <button data-t="view">View</button>
+          <button data-t="driver" id="driverTab">NVIDIA App</button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Setting</th><th>Set to</th><th></th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <p class="foot" id="footNote"></p>
+    </div>
+
+    </div>
+  </section>
+</main>
+
+<script>
+// ---------- Data ----------
+// score ≈ avg fps at 1440p, Balanced preset, native, GPU-bound (RX 9070 XT ≈ 133, PC Gamer)
+const GPUS = [
+ ["NVIDIA RTX 5090",32,215],["NVIDIA RTX 4090",24,195],["NVIDIA RTX 5080",16,165],["NVIDIA RTX 4080 Super",16,150],
+ ["NVIDIA RTX 5070 Ti",16,140],["NVIDIA RTX 4070 Ti Super",16,125],["NVIDIA RTX 5070",12,112],["NVIDIA RTX 4070 Super",12,110],
+ ["NVIDIA RTX 4070",12,96],["NVIDIA RTX 5060 Ti 16GB",16,86],["NVIDIA RTX 5060 Ti 8GB",8,82],["NVIDIA RTX 4060 Ti",8,74],
+ ["NVIDIA RTX 5060",8,72],["NVIDIA RTX 4060",8,62],["NVIDIA RTX 3080",10,96],["NVIDIA RTX 3070",8,76],["NVIDIA RTX 3060 Ti",8,68],
+ ["NVIDIA RTX 3060",12,52],["NVIDIA RTX 2070 Super",8,56],["NVIDIA RTX 2060",6,40],["NVIDIA GTX 1660 Super",6,32],
+ ["AMD RX 9070 XT",16,133],["AMD RX 9070",16,122],["AMD RX 7900 XTX",24,150],["AMD RX 7900 XT",20,132],["AMD RX 7800 XT",16,104],
+ ["AMD RX 7700 XT",12,88],["AMD RX 9060 XT 16GB",16,84],["AMD RX 7600",8,58],["AMD RX 6800 XT",16,100],["AMD RX 6700 XT",12,72],
+ ["AMD RX 6600",8,48],["Intel Arc B580",12,70],["Intel Arc A770",16,58]
+];
+// CPU fps ceiling in heavy Warzone/DMZ scenes (Multiplayer ×1.3)
+const CPUS = [
+ ["AMD Ryzen 7 9800X3D",175],["AMD Ryzen 9 9950X3D",172],["AMD Ryzen 7 7800X3D",160],["AMD Ryzen 9 7950X3D",158],
+ ["AMD Ryzen 7 9700X",140],["AMD Ryzen 5 9600X",132],["AMD Ryzen 7 7700X",135],["AMD Ryzen 5 7600X",128],
+ ["AMD Ryzen 7 5800X3D",132],["AMD Ryzen 7 5700X3D",124],["AMD Ryzen 7 5800X",108],["AMD Ryzen 5 5600X",100],["AMD Ryzen 5 3600",78],
+ ["Intel Core Ultra 9 285K",145],["Intel Core Ultra 7 265K",140],["Intel Core i9-14900K",150],["Intel Core i7-14700K",145],
+ ["Intel Core i5-14600K",135],["Intel Core i7-13700K",140],["Intel Core i5-13600K",132],["Intel Core i5-13400F",108],
+ ["Intel Core i5-12600K",118],["Intel Core i5-12400F",102],["Intel Core i7-10700K",92],["Intel Core i5-10400F",76]
+];
+const RES_F = {1080:1.42,1440:1,2160:0.55};
+const ALL_MAX = 0.80/1.04/1.02;   // everything maxed incl. reflections
+const WINDOW = 5;       // land between meta and meta+5
+
+// Each knob: levels best→fastest, fps gain of each step down, visual cost of each step down
+const KNOBS = {
+ up:       {lv:["aa","q","b","p"],                 g:[1.22,1.107,1.126],  c:[3,5,8]},
+ vrs:      {lv:["Off","On"],                       g:[1.03],              c:[1]},
+ tex_aniso:{lv:["High","Normal","Low"],            g:[1.005,1.005],       c:[2,3]},
+ detail:   {lv:["High","Normal","Low"],            g:[1.04,1.02],         c:[2,4]},
+ particle: {lv:["Normal","Low","Very Low"],        g:[1.015,1.01],        c:[1,1]},
+ shader:   {lv:["High","Medium","Low"],            g:[1.03,1.02],         c:[3,4]},
+ surface:  {lv:["High","Medium","Low"],            g:[1.01,1.01],         c:[2,3]},
+ stream:   {lv:["Default","Low"],                  g:[1.015],             c:[2]},
+ shadow:   {lv:["High","Normal","Low","Very Low"], g:[1.05,1.04,1.02],    c:[2,3,4]},
+ sfilter:  {lv:["High","Normal","Low"],            g:[1.02,1.01],         c:[1,2]},
+ sss:      {lv:["On","Off"],                       g:[1.02],              c:[1]},
+ occl:     {lv:["Low","Off"],                      g:[1.04],              c:[2]},
+ terrain:  {lv:["High","Medium","Low","Very Low"], g:[1.04,1.02,1.01],    c:[2,3,4]},
+ volum:    {lv:["Medium","Low"],                   g:[1.03],              c:[1]},
+ physics:  {lv:["Low","Off"],                      g:[1.01],              c:[1]},
+ weather:  {lv:["Low","Off"],                      g:[1.015],             c:[1]},
+ water:    {lv:["All","Water Caustics","Off"],     g:[1.01,1.01],         c:[1,1]},
+ ssr:      {lv:["High","Low","Off"],               g:[1.04,1.02],         c:[3,2]},
+ srefl:    {lv:["High","Normal","Low"],            g:[1.01,1.01],         c:[1,1]}
+};
+const KEYS = Object.keys(KNOBS);
+// Always start with everything at max (best look) and only lower what's needed
+function startLevels(){ const s={}; KEYS.forEach(k=>s[k]=0); return s; }
+// DLSS/FSR Quality looks closer to native the higher the resolution
+function upCost(){ KNOBS.up.c[0] = {1080:4,1440:2,2160:1}[state.res]; }
+
+// ---------- State ----------
+const $ = id => document.getElementById(id);
+let state = {gpu:"", cpu:"", ramGb:"", ramType:"", ramSpeed:0, res:"", hz:0, vrr:false, dual:false, fov:0, mode:"mp", tab:"display"};
+try{ const saved = JSON.parse(localStorage.getItem("mw4opt")||"null"); if(saved) state = Object.assign(state,saved); }catch(e){}
+function save(){ try{ localStorage.setItem("mw4opt", JSON.stringify(state)); }catch(e){} }
+
+[$("gpu"),$("cpu")].forEach(sel=>{const o=document.createElement("option");o.value="";o.textContent="Select…";sel.appendChild(o);});
+GPUS.forEach(g=>{const o=document.createElement("option");o.textContent=g[0];$("gpu").appendChild(o);});
+CPUS.forEach(c=>{const o=document.createElement("option");o.textContent=c[0];$("cpu").appendChild(o);});
+
+function bindUI(){
+  $("gpu").value=state.gpu; $("cpu").value=state.cpu; $("ramGb").value=state.ramGb; $("ramType").value=state.ramType;
+  if(document.activeElement!==$("ramSpeed")) $("ramSpeed").value=state.ramSpeed||"";
+  if(document.activeElement!==$("hz")) $("hz").value=state.hz||"";
+  if(document.activeElement!==$("fov")) $("fov").value=state.fov||"";
+  $("res").value=state.res; $("vrr").checked=state.vrr; $("dual").checked=state.dual;
+  [["mode","mode"]].forEach(([id,k])=>{[...$(id).children].forEach(b=>b.classList.toggle("on",b.dataset.v===state[k]));});
+  [...$("tabs").children].forEach(b=>b.classList.toggle("on",b.dataset.t===state.tab));
+}
+["gpu","cpu","ramGb","ramType","res"].forEach(id=>$(id).addEventListener("change",e=>{state[id]=e.target.value;run();}));
+["ramSpeed","hz","fov"].forEach(id=>$(id).addEventListener("input",e=>{state[id]=+e.target.value||0;run();}));
+$("vrr").addEventListener("change",e=>{state.vrr=e.target.checked;run();});
+$("dual").addEventListener("change",e=>{state.dual=e.target.checked;run();});
+["mode"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target.dataset.v){state[id]=e.target.dataset.v;run();}}));
+$("tabs").addEventListener("click",e=>{if(e.target.dataset.t){state.tab=e.target.dataset.t;run();}});
+
+// ---------- Engine ----------
+function ramFactor(){
+  let f=1;
+  if(state.ramType==="ddr5"){ if(state.ramSpeed<5200) f=0.92; else if(state.ramSpeed<6000) f=0.96; }
+  else { if(state.ramSpeed<3000) f=0.9; else if(state.ramSpeed<3200) f=0.95; }
+  if(+state.ramGb<16) f*=0.85;
+  return f;
+}
+function gpuFps(base,L){
+  let f=base*ALL_MAX;
+  KEYS.forEach(k=>{ for(let i=0;i<L[k];i++) f*=KNOBS[k].g[i]; });
+  return f;
+}
+// Wider FOV = more on screen = a few fewer fps (baseline 105)
+function fovClamp(){ return Math.min(120,Math.max(60,state.fov||105)); }
+function fovGpu(){ return 1-(fovClamp()-105)*0.003; }   // 120 ≈ -4.5%
+function fovCpu(){ return 1-(fovClamp()-105)*0.0015; }  // 120 ≈ -2%
+function estimate(){
+  const g = GPUS.find(x=>x[0]===state.gpu)||GPUS[0], c = CPUS.find(x=>x[0]===state.cpu)||CPUS[0];
+  const vram=g[1], base=g[2]*RES_F[state.res]*(state.mode==="wz"?0.9:1)*fovGpu();
+  const cpuCap = c[1]*(state.mode==="mp"?1.3:1)*ramFactor()*fovCpu();
+  const target = Math.max(30,state.hz||60);
+  const cpuLimited = cpuCap < target;
+  const lo = cpuLimited ? Math.floor(cpuCap) : target;    // aim: meta … meta+5
+  upCost(); const start = startLevels(), L = Object.assign({},start);
+  const eff = L2 => Math.min(gpuFps(base,L2), cpuCap);
+
+  // 1) lower settings until we reach the meta (cheapest visual loss first)
+  let guard=0;
+  while(eff(L) < lo && guard++<100){
+    let bestReach=null, bestRatio=null;
+    KEYS.forEach(k=>{
+      const K=KNOBS[k], i=L[k]; if(i>=K.lv.length-1) return;
+      const T=Object.assign({},L); T[k]=i+1; const f=eff(T), cost=K.c[i];
+      if(f>=lo){ if(!bestReach || cost<bestReach.cost || (cost===bestReach.cost && f<bestReach.f)) bestReach={k,cost,f}; }
+      const ratio=Math.log(K.g[i])/cost;
+      if(!bestRatio || ratio>bestRatio.ratio) bestRatio={k,ratio};
+    });
+    if(bestReach) L[bestReach.k]++; else if(bestRatio) L[bestRatio.k]++; else break;
+  }
+  // 2) tighten: give back quality while staying ≥ meta (most valuable visuals first)
+  let changed=true; guard=0;
+  while(changed && guard++<100){
+    changed=false;
+    const opts=KEYS.filter(k=>L[k]>start[k]).map(k=>({k,cost:KNOBS[k].c[L[k]-1]})).sort((a,b)=>b.cost-a.cost);
+    for(const o of opts){
+      const T=Object.assign({},L); T[o.k]--;
+      if(eff(T)>=lo){ L[o.k]--; changed=true; break; }
+    }
+  }
+  const fps=Math.round(eff(L));
+  const lowered = KEYS.filter(k=>L[k]>start[k]);
+  return {g,c,vram,cpuCap,target,lo,L,start,fps,lowered,cpuLimited,reached:eff(L)>=lo,gpuBound:gpuFps(base,L)<cpuCap};
+}
+
+function build(e){
+  const L=e.L, lv=k=>KNOBS[k].lv[L[k]];
+  const nv=state.gpu.startsWith("NVIDIA"), intel=state.gpu.startsWith("Intel");
+  const upName = nv?"NVIDIA DLSS":intel?"Intel XeSS":"AMD FSR";
+  const upMode = {aa: nv?"DLAA (native quality)":"Native AA", q:"Quality", b:"Balanced", p:"Performance"}[lv("up")];
+  const hz=state.hz||60, cap = state.vrr ? Math.max(30,hz-3) : hz;
+  const vramT = e.vram>=16?85:e.vram>=12?80:e.vram>=8?75:70;
+  const tex = e.vram>=12?"High":e.vram>=8?"Normal":"Low";
+  const low = k => e.lowered.includes(k) ? "fps" : "";
+  // [name, value, default, note, flag]  flag "fps" = lowered to hit your meta
+  const display=[
+   state.dual ? ["Display Mode","Fullscreen Borderless","—","Best with two monitors: Alt+Tab and moving the mouse to the other screen is instant, no flicker"]
+              : ["Display Mode","Fullscreen Exclusive","Fullscreen Borderless","Slightly lower input lag with a single monitor"],
+   ["Display Monitor",state.dual?"The monitor you play on":"Your main monitor","—"],
+   ["Display Adapter",state.gpu,"—"],
+   ["Screen Refresh Rate",hz+" Hz","Auto",state.dual?"In Borderless this follows Windows; set "+hz+" Hz in Windows (see Card & Windows tab)":""],
+   ["Display Resolution","Native ("+({1080:"1920×1080",1440:"2560×1440",2160:"3840×2160"})[state.res]+")","Auto"],
+   ["Aspect Ratio","Automatic","Automatic"],
+   ["Background Shader Preloading","On","On"],
+   ["Restart Shader Preloading","Only after updating your GPU driver","—"],
+   ["Display Gamma","2.2 (sRGB)","2.2 (sRGB)"],
+   ["SDR Calibration","Dark areas visible without washing out bright ones","—"],
+   [nv?"NVIDIA Reflex Low Latency":"Low Latency (Reflex / Anti-Lag)", nv?"On + Boost":"On", nv?"On":"—"],
+   ["V-Sync (Gameplay)","Off","Off"],
+   ["V-Sync (Menus)","100%","100%"],
+   ["Custom Frame Rate Limit","Custom → Gameplay "+cap,"Custom", state.vrr?"3 below "+hz+" so G-Sync/FreeSync never turns off":"No G-Sync/FreeSync: same as your Hz"],
+   ["Eco Mode Preset","Efficiency","Efficiency"],
+   ["Reduce Menu Render Resolution","Optimal","Optimal"],
+   ["Pause Game Rendering","Off","Off"],
+   ["Reduce Quality When Inactive","30 Seconds","30 Seconds"],
+   ["Focused Mode","0","0"],
+   ["High Dynamic Range (HDR)","Off","Automatic","If you don't see this option, your monitor or Windows doesn't have HDR on. Nothing to do."]
+  ];
+  const quality=[
+   ["Graphic Preset","Custom","Recommended","Change this FIRST; changing it later resets everything else"],
+   ["Frame Generation","Off","Off","Adds input lag; don't use it for multiplayer"],
+   ["Ray Tracing","Off","Off"],
+   ["Advanced Quality Settings","See «Advanced Quality» tab","—"],
+   ["Resolution Scaling Technique",upName+" → "+upMode,"Filmic SMAA T2X","",low("up")],
+   ["Sharpness",{aa:"50",q:"60",b:"70",p:"80"}[lv("up")],"50"],
+   ["Variable Rate Shading",lv("vrs"),"On","",low("vrs")],
+   ["World Motion Blur","Off","Off"],
+   ["Weapon Motion Blur","Off","Off"],
+   ["World Depth of Field","Off","Cutscenes Only"],
+   ["Weapon Depth of Field","Off","On"],
+   ["Film Grain","0","0.20"]
+  ];
+  const A=(n,k)=>[n,lv(k),"—","",low(k)];
+  const adv=[
+   ["#General"],
+   ["VRAM Scale Target",String(vramT),"—"],
+   ["#Details & Textures"],
+   ["Texture Resolution",tex,"—","Based on your card's "+e.vram+" GB; barely affects fps"],
+   A("Texture Filter Anisotropic","tex_aniso"),
+   A("Detail Quality","detail"),
+   A("Particle Resolution","particle"),
+   ["Bullet Impacts","On","—"],
+   ["Persistent Effects","On","—"],
+   A("Shader Quality","shader"),
+   A("Surface Quality","surface"),
+   ["On-Demand Texture Streaming","Minimal","—"],
+   A("Local Texture Streaming Quality","stream"),
+   ["In-Game Video Quality","Standard","—"],
+   ["#Shadows"],
+   A("Shadow Quality","shadow"),
+   A("Shadow Filtering Quality","sfilter"),
+   A("Screen Space Shadows","sss"),
+   ["#Lighting & Reflections"],
+   A("Occlusion and Screen Space Lighting","occl"),
+   A("Static Reflection Quality","srefl"),
+   A("Screen Space Reflections","ssr"),
+   A("Terrain Quality","terrain"),
+   A("Volumetric Quality","volum"),
+   A("Deferred Physics Quality","physics"),
+   A("Weather Grid Volumes Quality","weather"),
+   A("Water Quality","water")
+  ];
+  const view=[
+   ["Field of View (FOV)",String(fovClamp()),"95", fovClamp()>110?"Wider view; the app already accounts for the fps it costs":fovClamp()<100?"Bigger enemies, but less peripheral view":""],
+   ["Enhanced FOV","Off","Off"],
+   ["ADS Field of View","Affected","Affected"],
+   ["3rd Person Field of View","90","90"],
+   ["Vehicle Field of View","Wide","Default"],
+   ["1st Person Camera Movement","Minimal (25%)","Default (100%)"],
+   ["3rd Person Camera Movement","Minimal (25%)","Default (100%)"],
+   ["3rd Person ADS Transition","3rd Person ADS","3rd Person ADS"],
+   ["Inverted Flashbang","On","Off"]
+  ];
+  const vendor = nv?"nv":state.gpu.startsWith("AMD")?"amd":"intel";
+  let driver;
+  if(vendor==="nv") driver=[
+   ["#NVIDIA App → Graphics → Global Settings (or NVIDIA Control Panel → Manage 3D Settings)"],
+   ["Low Latency Mode","Off","Off","The in-game NVIDIA Reflex already handles this"],
+   ["Power Management Mode","Prefer Maximum Performance","Normal","Keeps the card from downclocking mid-match"],
+   ["Vertical Sync",state.vrr?"On":"Off","Use the 3D application setting",state.vrr?"With G-Sync: V-Sync On here and Off in-game, plus the "+cap+" cap. No tearing, no extra lag":"Leave off without G-Sync"],
+   ["Max Frame Rate","Off","Off","The cap is already set in-game"],
+   ["Texture Filtering – Quality","High Quality","Quality","Sharper textures; almost no FPS cost"],
+   ["Anisotropic Filtering","Application-controlled","Application-controlled"],
+   ["Antialiasing – Mode","Application-controlled","Application-controlled","The in-game DLSS handles it"],
+   ["Shader Cache Size","Unlimited","Driver Default","Fewer stutters while the game compiles shaders"],
+   ["Image Scaling","Off","Off","You already use DLSS"],
+   ["Monitor Technology",state.vrr?"G-SYNC Compatible":"Fixed Refresh","—"],
+   ["Preferred Refresh Rate","Highest available","Application-controlled"],
+   ["#NVIDIA App → Graphics → Program Settings → Call of Duty"],
+   ["DLSS Override – Model Presets","Latest","Default","Uses the newest DLSS model: sharper at the same performance"],
+   ["DLSS Override – Frame Generation","Off","Off","Adds input lag"],
+   ["#NVIDIA Control Panel → Display"],
+   ["Set up G-SYNC",state.vrr?(state.dual?"Enable G-SYNC, G-SYNC Compatible → Enable for windowed and full screen mode":"Enable G-SYNC, G-SYNC Compatible → Enable for full screen mode"):"Not applicable","—",state.vrr&&state.dual?"Needed for G-Sync to work in Borderless":""],
+   ["Change resolution → Refresh rate",(state.hz||60)+" Hz","—","Make sure it's not on 60 Hz"],
+   ["Change resolution → Output dynamic range","Full","Limited","Correct colors and blacks"],
+   ["Change resolution → Output color depth","Highest available","—"]
+  ];
+  else if(vendor==="amd") driver=[
+   ["#AMD Software: Adrenalin → Gaming → Graphics (global or Call of Duty profile)"],
+   ["Graphics Profile","Custom","Default","HYPR-RX off so you control each option"],
+   ["Radeon Anti-Lag","On","Off","If the game has its own Anti-Lag 2, use that and leave this Off"],
+   ["Radeon Chill","Off","Off","Limits your FPS"],
+   ["Radeon Boost","Off","Off","Lowers resolution when you move"],
+   ["Radeon Super Resolution","Off","Off","You already use FSR in-game"],
+   ["AMD Fluid Motion Frames","Off","Off","Adds input lag"],
+   ["Radeon Image Sharpening","Off","Off","The game already has Sharpness"],
+   ["Enhanced Sync","Off","Off","Can cause stutters with FreeSync"],
+   ["Wait for Vertical Refresh","Off, unless application specifies","Off, unless application specifies"],
+   ["Frame Rate Target Control","Off","Off","The cap is already set in-game"],
+   ["#Advanced"],
+   ["Texture Filtering Quality","High","Standard","Sharper textures, almost no cost"],
+   ["Surface Format Optimization","On","On"],
+   ["Tessellation Mode","AMD Optimized","AMD Optimized"],
+   ["Shader Cache","AMD Optimized","AMD Optimized"],
+   ["#AMD Software → Gaming → Display"],
+   ["AMD FreeSync",state.vrr?"Enabled":"Disabled","—"],
+   ["Virtual Super Resolution","Off","Off"],
+   ["GPU Scaling","Off","Off"],
+   ["Integer Scaling","Off","Off"],
+   ["Color Depth","Highest available","—"],
+   ["Pixel Format","RGB 4:4:4 Full RGB","—","Correct colors and blacks"]
+  ];
+  else driver=[
+   ["#Intel Graphics Software → Graphics"],
+   ["Low Latency Mode","Off","Off","If the game has its own low-latency mode, use that"],
+   ["Vertical Sync","Application Choice","Application Choice"],
+   ["Frame Rate Limiter","Off","Off","The cap is already set in-game"],
+   ["Frame Generation (driver)","Off","Off"],
+   ["#Intel Graphics Software → Display"],
+   ["Adaptive Sync",state.vrr?"On":"Off","—"],
+   ["Refresh Rate",(state.hz||60)+" Hz","—"],
+   ["Quantization Range","Full","—"]
+  ];
+  driver.push(
+   ["#Windows (Settings)"],
+   ["System → Display → Graphics → Call of Duty","High performance ("+state.gpu+")","Let Windows decide","Makes sure the game always uses your graphics card"],
+   ["System → Display → Graphics → Hardware-accelerated GPU scheduling","On","On"],
+   ["Gaming → Game Mode","On","On"],
+   ["System → Display → Advanced display → Refresh rate",(state.hz||60)+" Hz","—","Make sure Windows isn't set to 60 Hz"],
+   ["System → Power → Power mode","Best performance","Balanced"]
+  );
+  return {display,quality,advanced:adv,view,driver,cap,upName,upMode};
+
+}
+
+const TABNAMES={display:"Display",quality:"Quality",advanced:"Advanced Quality",view:"View",driver:"Card & Windows"};
+function driverLabel(){ return state.gpu.startsWith("NVIDIA")?"NVIDIA App":state.gpu.startsWith("AMD")?"AMD Adrenalin":"Intel Graphics"; }
+
+function run(){
+  bindUI(); save();
+  const ready = state.gpu && state.cpu && state.ramGb && state.ramType && state.ramSpeed>=1600 && state.res && state.hz>=30 && state.fov>=60 && state.fov<=120;
+  $("empty").style.display = ready ? "none" : "";
+  $("results").style.display = ready ? "" : "none";
+  if(!ready) return;
+  $("driverTab").textContent = driverLabel()+" + Windows";
+  const e=estimate(), b=build(e);
+  const over=e.fps-e.target;
+  $("estFps").textContent="~"+e.fps;
+  $("estFps").className="v "+(e.reached && !e.cpuLimited?"ok":"warn");
+  $("estSub").textContent = e.cpuLimited
+    ? "Your CPU tops out at ~"+Math.floor(e.cpuCap)+" here; target "+e.target
+    : e.reached ? "Target "+e.target+" · "+(over>=0?"+":"")+over+" headroom"
+                : "Can't reach "+e.target+" even at lowest";
+  $("tierName").textContent = e.lowered.length ? e.lowered.length+" lowered" : "All maxed";
+  $("tierSub").textContent = (e.lowered.length?"Everything else maxed":"FPS to spare")+" · "+b.upName+" "+b.upMode;
+  $("capVal").textContent = b.cap;
+
+  const A=[];
+  if(state.ramType==="ddr5" && state.ramSpeed<6000) A.push(["warn","<b>Your RAM is running at "+state.ramSpeed+" MT/s.</b> If your sticks are rated for 6000, enable <b>EXPO</b> (AMD) or <b>XMP</b> (Intel) in the BIOS. It's free performance."]);
+  if(state.ramType==="ddr4" && state.ramSpeed<3200) A.push(["warn","<b>Your DDR4 RAM is running at "+state.ramSpeed+" MT/s.</b> Enable <b>XMP/DOCP</b> in the BIOS so it runs at its rated speed (3200–3600)."]);
+  if(+state.ramGb<16) A.push(["bad","<b>8 GB of RAM is too little for MW4.</b> You'll get stutters even with everything low; 16 GB or more is ideal."]);
+  if(e.cpuLimited) A.push(["warn","<b>Your CPU is the limit here (~"+Math.floor(e.cpuCap)+" fps), not the graphics.</b> Lowering more settings won't add fps, so the app kept graphics as high as possible for that number. "+(state.mode==="wz"?"In Multiplayer the CPU works less and you do reach it.":"")]);
+  else if(!e.reached) A.push(["warn","<b>Even with everything low you can't reach "+e.target+" fps.</b> Lower the resolution or set the cap to "+Math.max(30,Math.floor(e.fps/5)*5)+"."]);
+
+
+  $("alerts").innerHTML=A.map(a=>'<div class="alert '+a[0]+'">'+a[1]+'</div>').join("");
+
+  const rows=b[state.tab]; let n=0, html="", pendingHeader=null;
+  rows.forEach(r=>{
+    if(r[0].startsWith("#")){ pendingHeader=r[0].slice(1); return; }
+    const known=r[2]&&r[2]!=="—", change=known&&r[1]!==r[2], fps=r[4]==="fps";
+    if(known && !change && !fps) return;               // already at the right value by default → skip
+    if(pendingHeader){ html+='<tr class="sub"><td colspan="4">'+pendingHeader+'</td></tr>'; pendingHeader=null; }
+    n++;
+    const tag = fps ? '<span class="tag chg" style="background:var(--warn)">Lowered for FPS</span>' : change ? '<span class="tag chg">Change</span>' : '';
+    html+='<tr><td class="n">'+n+'</td><td>'+r[0]+(r[3]?'<div class="note">'+r[3]+'</div>':'')+'</td><td class="val">'+r[1]+(change?'<div class="note">Default: '+r[2]+'</div>':'')+'</td><td>'+tag+'</td></tr>';
+  });
+  if(!html) html='<tr><td colspan="4" class="note">Nothing to change here: everything stays at default.</td></tr>';
+  $("tbody").innerHTML=html;
+  $("footNote").textContent = state.tab==="advanced" ? "In Advanced Quality the default depends on the preset; set all of these values."
+    : state.tab==="driver" ? "These are general driver settings, not MW4-specific. If an option doesn't appear with that name, it may be in another menu depending on your driver version." : "";
+}
+
+// ---------- RAM helper ----------
+$("copyPs").addEventListener("click",()=>{
+  navigator.clipboard.writeText($("psCmd").textContent).then(()=>{$("copyPs").textContent="Copied!";setTimeout(()=>$("copyPs").textContent="Copy command",1500);})
+   .catch(()=>{$("copyPs").textContent="Select it and copy manually";});
+});
+function partCheck(){
+  const raw=$("partNum").value.trim();
+  const out=$("partOut");
+  if(!raw){ out.innerHTML=""; return; }
+  const pn=raw.split(/\s+/).filter(x=>/[0-9]/.test(x)&&x.length>5).pop()||raw;
+  const q=encodeURIComponent(pn+" RAM speed MT/s");
+  let html='<a href="https://www.google.com/search?q='+q+'" target="_blank" rel="noopener">🔎 Search «'+pn.replace(/[<>&"]/g,"")+'» on Google</a>';
+  const m=pn.match(/(?:^|[^0-9])(2133|2400|2666|2933|3000|3200|3600|4000|4400|4800|5200|5600|6000|6200|6400|6600|6800|7200|7600|8000|8200|8400)(?![0-9])/);
+  if(m){
+    const rated=+m[1], cur=+state.ramSpeed||0;
+    html+='<div style="margin-top:6px">Looks like your RAM is rated for <b>'+rated+' MT/s</b> (confirm on Google). ';
+    if(cur && cur<rated) html+='<span class="warn">It\'s running at '+cur+': go into the BIOS and enable <b>EXPO</b> (AMD) or <b>XMP</b> (Intel).</span>';
+    else if(cur>=rated) html+='<span class="ok">It\'s already running at its rated speed. Nothing to do.</span>';
+    html+='</div>';
+  } else html+='<div class="note" style="margin-top:6px">Couldn\'t read the speed from the code; search it on Google and compare with the Task Manager number.</div>';
+  out.innerHTML=html;
+}
+$("partNum").addEventListener("input",partCheck);
+$("ramSpeed").addEventListener("input",partCheck);
+
+run();
+</script>
+</body>
+</html>
