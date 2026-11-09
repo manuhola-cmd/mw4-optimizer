@@ -73,72 +73,78 @@ kbd{background:#2a3024;border:1px solid var(--line);border-radius:4px;padding:0 
 .foot{color:var(--muted);font-size:12.5px;margin-top:14px}
 .copy{background:transparent;border:1px solid var(--accent2);color:var(--accent);border-radius:6px;padding:7px 12px;font:600 13px Inter;cursor:pointer;margin-left:auto}
 .bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lang{display:flex;gap:4px}
+.lang button{background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font:600 13px Inter;cursor:pointer}
+.lang button.on{background:var(--accent);color:#111;border-color:var(--accent)}
+.en-name{color:var(--muted);font-size:11.5px;font-style:italic}
 </style>
 </head>
 <body>
 <header><div class="wrap">
   <h1>MW4 <span>FPS</span> Optimizer</h1>
+  <div class="lang" id="lang"><button data-v="en">EN</button><button data-v="es">ES</button></div>
 </div></header>
 
 <main>
   <section>
     <div class="card sticky">
-      <h2>Your PC</h2>
-      <label for="gpu">Graphics card (GPU)</label>
+      <h2 data-i18n="pc">Your PC</h2>
+      <label for="gpu" data-i18n="gpu">Graphics card (GPU)</label>
       <select id="gpu"></select>
-      <label for="cpu">Processor (CPU)</label>
+      <label for="cpu" data-i18n="cpu">Processor (CPU)</label>
       <select id="cpu"></select>
       <div class="row">
         <div><label for="ramGb">RAM (GB)</label>
-          <select id="ramGb"><option value="">Select…</option><option>8</option><option>16</option><option>32</option><option>64</option></select></div>
-        <div><label for="ramType">Type</label>
-          <select id="ramType"><option value="">Select…</option><option value="ddr4">DDR4</option><option value="ddr5">DDR5</option></select></div>
+          <select id="ramGb"><option value="" data-i18n="select">Select…</option><option>8</option><option>16</option><option>32</option><option>64</option></select></div>
+        <div><label for="ramType" data-i18n="type">Type</label>
+          <select id="ramType"><option value="" data-i18n="select">Select…</option><option value="ddr4">DDR4</option><option value="ddr5">DDR5</option></select></div>
       </div>
-      <label for="ramSpeed">RAM speed (MT/s)</label>
-      <input id="ramSpeed" type="number" placeholder="e.g. 6000" min="1600" max="9000" step="100">
+      <label for="ramSpeed" data-i18n="ramspeed">RAM speed (MT/s)</label>
+      <input id="ramSpeed" type="number" placeholder="e.g. 6000" data-i18n-ph="ph_ram" min="1600" max="9000" step="100">
       <details class="help">
-        <summary>How do I check my RAM speed?</summary>
+        <summary data-i18n="ramhelp_t">How do I check my RAM speed?</summary>
         <ol>
-          <li><b>Current speed:</b> press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> to open Task Manager → <b>Performance</b> tab → <b>Memory</b>. At the bottom it shows <b>Speed</b> (e.g. 4800 MT/s). Enter that number in the field above.</li>
-          <li><b>Open PowerShell:</b> click the <b>Start</b> button (the Windows logo), type <b>PowerShell</b> and press <kbd>Enter</kbd>. A blue or black window opens.</li>
-          <li><b>Copy this command</b> with the button, paste it into PowerShell with <kbd>Ctrl</kbd>+<kbd>V</kbd> (or right-click) and press <kbd>Enter</kbd>:
+          <li data-i18n="ram1"><b>Current speed:</b> press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> to open Task Manager → <b>Performance</b> tab → <b>Memory</b>. At the bottom it shows <b>Speed</b> (e.g. 4800 MT/s). Enter that number in the field above.</li>
+          <li data-i18n="ram2"><b>Open PowerShell:</b> click the <b>Start</b> button (the Windows logo), type <b>PowerShell</b> and press <kbd>Enter</kbd>. A blue or black window opens.</li>
+          <li><span data-i18n="ram3"><b>Copy this command</b> with the button, paste it into PowerShell with <kbd>Ctrl</kbd>+<kbd>V</kbd> (or right-click) and press <kbd>Enter</kbd>:</span>
             <pre id="psCmd">Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer, PartNumber</pre>
-            <button type="button" class="copy small" id="copyPs">Copy command</button>
+            <button type="button" class="copy small" id="copyPs" data-i18n="copycmd">Copy command</button>
           </li>
-          <li><b>Copy the PartNumber</b> it shows (the long code, e.g. <i>F5-6000J3038F16G</i>) and paste it here:
-            <input id="partNum" type="text" placeholder="Paste your PartNumber here" autocomplete="off">
+          <li><span data-i18n="ram4"><b>Copy the PartNumber</b> it shows (the long code, e.g. <i>F5-6000J3038F16G</i>) and paste it here:</span>
+            <input id="partNum" type="text" placeholder="Paste your PartNumber here" data-i18n-ph="ph_part" autocomplete="off">
             <div id="partOut" class="partout"></div>
           </li>
         </ol>
       </details>
 
-      <h2 style="margin-top:20px">Your monitor</h2>
+      <h2 style="margin-top:20px" data-i18n="monitor">Your monitor</h2>
       <div class="row">
-        <div><label for="res">Resolution</label>
-          <select id="res"><option value="">Select…</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></div>
-        <div><label for="hz">Hz / FPS target</label>
-          <input id="hz" type="number" placeholder="e.g. 144" min="30" max="500"></div>
+        <div><label for="res" data-i18n="res">Resolution</label>
+          <select id="res"><option value="" data-i18n="select">Select…</option><option value="1080">1080p</option><option value="1440">1440p</option><option value="2160">4K</option></select></div>
+        <div><label for="hz" data-i18n="hz">Hz / FPS target</label>
+          <input id="hz" type="number" placeholder="e.g. 144" data-i18n-ph="ph_hz" min="30" max="500"></div>
       </div>
 
-      <label class="check"><input type="checkbox" id="dual"> I use two (or more) monitors</label>
-      <label class="check"><input type="checkbox" id="vrr"> My monitor has G-Sync / FreeSync</label>
+      <label class="check"><input type="checkbox" id="dual"> <span data-i18n="dual">I use two (or more) monitors</span></label>
+      <label class="check"><input type="checkbox" id="vrr"> <span data-i18n="vrr">My monitor has G-Sync / FreeSync</span></label>
       <details class="help">
-        <summary>How do I know if my monitor has G-Sync / FreeSync?</summary>
+        <summary data-i18n="vrrhelp_t">How do I know if my monitor has G-Sync / FreeSync?</summary>
         <ol>
-          <li><b>Check your GPU software:</b>
+          <li data-i18n="vrr1"><b>Check your GPU software:</b>
             <br><b>NVIDIA:</b> right-click the desktop → <b>NVIDIA Control Panel</b> → in the left menu under <b>Display</b>, look for <b>Set up G-SYNC</b>. If it's there, your monitor supports it.
             <br><b>AMD:</b> open <b>AMD Software: Adrenalin</b> → <b>Gaming</b> → <b>Display</b>. If you see <b>AMD FreeSync</b>, your monitor supports it.</li>
-          <li><b>Check the monitor's own menu:</b> use the buttons on the monitor and look for <b>FreeSync</b>, <b>Adaptive-Sync</b>, <b>G-Sync</b> or <b>VRR</b>. Turn it <b>On</b>. Many monitors ship with it off, and then step 1 won't show the option.</li>
-          <li><b>Still not sure?</b> Find your monitor's model on the sticker on the back, or in Windows: <b>Settings → System → Display → Advanced display</b>. Search the model on Google with "FreeSync" or "G-Sync".</li>
-          <li><b>Use a DisplayPort cable</b> if you can. With NVIDIA cards, many monitors only enable G-Sync/FreeSync over DisplayPort, not HDMI.</li>
+          <li data-i18n="vrr2"><b>Check the monitor's own menu:</b> use the buttons on the monitor and look for <b>FreeSync</b>, <b>Adaptive-Sync</b>, <b>G-Sync</b> or <b>VRR</b>. Turn it <b>On</b>. Many monitors ship with it off, and then step 1 won't show the option.</li>
+          <li data-i18n="vrr3"><b>Still not sure?</b> Find your monitor's model on the sticker on the back, or in Windows: <b>Settings → System → Display → Advanced display</b>. Search the model on Google with "FreeSync" or "G-Sync".</li>
+          <li data-i18n="vrr4"><b>Use a DisplayPort cable</b> if you can. With NVIDIA cards, many monitors only enable G-Sync/FreeSync over DisplayPort, not HDMI.</li>
         </ol>
-        <p style="margin:4px 0 2px">If you found any of these, <b>check the box above</b>. If not, leave it unchecked.</p>
+        <p style="margin:4px 0 2px" data-i18n="vrr5">If you found any of these, <b>check the box above</b>. If not, leave it unchecked.</p>
       </details>
 
-      <h2 style="margin-top:20px">How you play</h2>
-      <label for="fov">Field of View (FOV)</label>
-      <input id="fov" type="number" placeholder="60–120 (e.g. 105)" min="60" max="120" step="1">
-      <label>Mode</label>
+      <h2 style="margin-top:20px" data-i18n="play">How you play</h2>
+      <label for="fov" data-i18n="fov">Field of View (FOV)</label>
+      <input id="fov" type="number" placeholder="60–120 (e.g. 105)" data-i18n-ph="ph_fov" min="60" max="120" step="1">
+      <label data-i18n="mode">Mode</label>
       <div class="seg" id="mode">
         <button data-v="mp" class="on">Multiplayer</button>
         <button data-v="wz">Warzone / DMZ</button>
@@ -147,12 +153,12 @@ kbd{background:#2a3024;border:1px solid var(--line);border-radius:4px;padding:0 
   </section>
 
   <section>
-    <div class="card" id="empty" style="display:none"><h2>Almost there</h2><p class="note" style="font-size:14px;margin:0">Fill in every field on the left (GPU, CPU, RAM, resolution, Hz and FOV) to see the settings you need to change.</p></div>
+    <div class="card" id="empty" style="display:none"><h2 data-i18n="empty_t">Almost there</h2><p class="note" style="font-size:14px;margin:0" data-i18n="empty">Fill in every field on the left (GPU, CPU, RAM, resolution, Hz and FOV) to see the settings you need to change.</p></div>
     <div id="results">
     <div class="result-top">
-      <div class="stat"><div class="k">Estimated FPS</div><div class="v" id="estFps">–</div><div class="s" id="estSub"></div></div>
-      <div class="stat"><div class="k">Adjustments</div><div class="v" id="tierName">–</div><div class="s" id="tierSub"></div></div>
-      <div class="stat"><div class="k">FPS limit</div><div class="v" id="capVal">–</div><div class="s">Custom Frame Rate Limit</div></div>
+      <div class="stat"><div class="k" data-i18n="k_fps">Estimated FPS</div><div class="v" id="estFps">–</div><div class="s" id="estSub"></div></div>
+      <div class="stat"><div class="k" data-i18n="k_adj">Adjustments</div><div class="v" id="tierName">–</div><div class="s" id="tierSub"></div></div>
+      <div class="stat"><div class="k" data-i18n="k_cap">FPS limit</div><div class="v" id="capVal">–</div><div class="s">Custom Frame Rate Limit</div></div>
     </div>
 
     <div class="alerts" id="alerts"></div>
@@ -160,15 +166,15 @@ kbd{background:#2a3024;border:1px solid var(--line);border-radius:4px;padding:0 
     <div class="card">
       <div class="bar">
         <div class="tabs" id="tabs">
-          <button data-t="display" class="on">Display</button>
-          <button data-t="quality">Quality</button>
-          <button data-t="advanced">Advanced Quality</button>
-          <button data-t="view">View</button>
+          <button data-t="display" class="on" data-i18n="t_display">Display</button>
+          <button data-t="quality" data-i18n="t_quality">Quality</button>
+          <button data-t="advanced" data-i18n="t_advanced">Advanced Quality</button>
+          <button data-t="view" data-i18n="t_view">View</button>
           <button data-t="driver" id="driverTab">NVIDIA App</button>
         </div>
       </div>
       <table>
-        <thead><tr><th>#</th><th>Setting</th><th>Set to</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th data-i18n="th_set">Setting</th><th data-i18n="th_to">Set to</th><th></th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
       <p class="foot" id="footNote"></p>
@@ -314,11 +320,165 @@ function startLevels(){ const s={}; KEYS.forEach(k=>s[k]=0); return s; }
 // DLSS/FSR Quality looks closer to native the higher the resolution
 function upCost(){ KNOBS.up.c[0] = {1080:4,1440:2,2160:1}[state.res]; }
 
+// ---------- Language (EN / ES) ----------
+function t(en,es){ return state.lang==="es" ? es : en; }
+const STATIC_ES = {
+ pc:"Tu PC", gpu:"Tarjeta gráfica (GPU)", cpu:"Procesador (CPU)", type:"Tipo", ramspeed:"Velocidad de RAM (MT/s)",
+ ramhelp_t:"¿Cómo sé la velocidad de mi RAM?",
+ ram1:'<b>Velocidad actual:</b> aprieta <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Esc</kbd> para abrir el Task Manager → pestaña <b>Performance</b> → <b>Memory</b>. Abajo dice <b>Speed</b> (ej. 4800 MT/s). Ese número va en el campo de arriba.',
+ ram2:'<b>Abre PowerShell:</b> dale al botón de <b>Start</b> (el logo de Windows), escribe <b>PowerShell</b> y dale <kbd>Enter</kbd>. Se abre una ventana azul o negra.',
+ ram3:'<b>Copia este comando</b> con el botón, pégalo en PowerShell con <kbd>Ctrl</kbd>+<kbd>V</kbd> (o clic derecho) y dale <kbd>Enter</kbd>:',
+ ram4:'<b>Copia el PartNumber</b> que sale (el código largo, ej. <i>F5-6000J3038F16G</i>) y pégalo aquí:',
+ monitor:"Tu monitor", res:"Resolución", hz:"Hz / FPS meta",
+ dual:"Uso dos (o más) monitores", vrr:"Mi monitor tiene G-Sync / FreeSync",
+ vrrhelp_t:"¿Cómo sé si mi monitor tiene G-Sync / FreeSync?",
+ vrr1:'<b>Revisa el programa de tu tarjeta:</b><br><b>NVIDIA:</b> clic derecho en el escritorio → <b>NVIDIA Control Panel</b> → en el menú de la izquierda, en <b>Display</b>, busca <b>Set up G-SYNC</b>. Si aparece, tu monitor lo soporta.<br><b>AMD:</b> abre <b>AMD Software: Adrenalin</b> → <b>Gaming</b> → <b>Display</b>. Si ves <b>AMD FreeSync</b>, tu monitor lo soporta.',
+ vrr2:'<b>Revisa el menú del monitor:</b> con los botones del monitor busca <b>FreeSync</b>, <b>Adaptive-Sync</b>, <b>G-Sync</b> o <b>VRR</b> y ponlo en <b>On</b>. Muchos monitores vienen con eso apagado, y entonces el paso 1 no enseña la opción.',
+ vrr3:'<b>¿Todavía no estás seguro?</b> Busca el modelo del monitor en la etiqueta de atrás, o en Windows: <b>Settings → System → Display → Advanced display</b>. Búscalo en Google con "FreeSync" o "G-Sync".',
+ vrr4:'<b>Usa cable DisplayPort</b> si puedes. Con tarjetas NVIDIA, muchos monitores solo activan G-Sync/FreeSync por DisplayPort, no por HDMI.',
+ vrr5:'Si encontraste cualquiera de estas opciones, <b>marca la casilla de arriba</b>. Si no, déjala sin marcar.',
+ play:"Cómo juegas", fov:"Campo de visión (FOV)", mode:"Modo",
+ empty_t:"Ya casi", empty:"Llena todos los campos de la izquierda (GPU, CPU, RAM, resolución, Hz y FOV) para ver los settings que tienes que cambiar.",
+ k_fps:"FPS estimados", k_adj:"Ajustes", k_cap:"Límite de FPS",
+ t_display:"Pantalla", t_quality:"Calidad", t_advanced:"Calidad avanzada", t_view:"Vista",
+ th_set:"Ajuste", th_to:"Ponlo en", copycmd:"Copiar comando", select:"Seleccionar…",
+ ph_ram:"ej. 6000", ph_part:"Pega tu PartNumber aquí", ph_hz:"ej. 144", ph_fov:"60–120 (ej. 105)"
+};
+function applyStatic(){
+  document.documentElement.lang = state.lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    if(el.dataset.en===undefined) el.dataset.en = el.innerHTML;
+    const es = STATIC_ES[el.dataset.i18n];
+    el.innerHTML = (state.lang==="es" && es) ? es : el.dataset.en;
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    if(el.dataset.enph===undefined) el.dataset.enph = el.placeholder;
+    const es = STATIC_ES[el.dataset.i18nPh];
+    el.placeholder = (state.lang==="es" && es) ? es : el.dataset.enph;
+  });
+}
+// Setting names (best-effort Spanish; the English name is shown underneath)
+const NAME_ES = {
+ "Display Mode":"Modo de pantalla","Display Monitor":"Monitor","Display Adapter":"Adaptador de pantalla",
+ "Screen Refresh Rate":"Frecuencia de actualización","Display Resolution":"Resolución de pantalla","Aspect Ratio":"Relación de aspecto",
+ "Background Shader Preloading":"Precarga de shaders en segundo plano","Restart Shader Preloading":"Reiniciar precarga de shaders",
+ "Display Gamma":"Gamma de pantalla","SDR Calibration":"Calibración SDR",
+ "NVIDIA Reflex Low Latency":"NVIDIA Reflex Baja latencia","Low Latency (Reflex / Anti-Lag)":"Baja latencia (Reflex / Anti-Lag)",
+ "V-Sync (Gameplay)":"Sincronización vertical (partida)","V-Sync (Menus)":"Sincronización vertical (menús)",
+ "Custom Frame Rate Limit":"Límite de fotogramas personalizado","Eco Mode Preset":"Preajuste de modo ecológico",
+ "Reduce Menu Render Resolution":"Reducir resolución de renderizado en menús","Pause Game Rendering":"Pausar renderizado del juego",
+ "Reduce Quality When Inactive":"Reducir calidad al estar inactivo","Focused Mode":"Modo enfocado","High Dynamic Range (HDR)":"Alto rango dinámico (HDR)",
+ "Graphic Preset":"Preajuste de gráficos","Frame Generation":"Generación de fotogramas","Ray Tracing":"Trazado de rayos",
+ "Advanced Quality Settings":"Ajustes de calidad avanzados","Resolution Scaling Technique":"Técnica de escalado de resolución",
+ "Sharpness":"Nitidez","Variable Rate Shading":"Sombreado de tasa variable",
+ "World Motion Blur":"Desenfoque de movimiento del mundo","Weapon Motion Blur":"Desenfoque de movimiento del arma",
+ "World Depth of Field":"Profundidad de campo del mundo","Weapon Depth of Field":"Profundidad de campo del arma","Film Grain":"Grano de película",
+ "VRAM Scale Target":"Objetivo de escala de VRAM","Texture Resolution":"Resolución de texturas","Texture Filter Anisotropic":"Filtro anisotrópico de texturas",
+ "Detail Quality":"Calidad de detalles","Particle Resolution":"Resolución de partículas","Bullet Impacts":"Impactos de bala","Persistent Effects":"Efectos persistentes",
+ "Shader Quality":"Calidad de shaders","Surface Quality":"Calidad de superficies","On-Demand Texture Streaming":"Transmisión de texturas a pedido",
+ "Local Texture Streaming Quality":"Calidad de transmisión local de texturas","In-Game Video Quality":"Calidad de video en el juego",
+ "Shadow Quality":"Calidad de sombras","Shadow Filtering Quality":"Calidad de filtrado de sombras","Screen Space Shadows":"Sombras en espacio de pantalla",
+ "Occlusion and Screen Space Lighting":"Oclusión e iluminación en espacio de pantalla","Static Reflection Quality":"Calidad de reflejos estáticos",
+ "Screen Space Reflections":"Reflejos en espacio de pantalla","Terrain Quality":"Calidad del terreno","Volumetric Quality":"Calidad volumétrica",
+ "Deferred Physics Quality":"Calidad de física diferida","Weather Grid Volumes Quality":"Calidad de volúmenes climáticos","Water Quality":"Calidad del agua",
+ "Field of View (FOV)":"Campo de visión (FOV)","Enhanced FOV":"Campo de visión mejorado","ADS Field of View":"Campo de visión al apuntar",
+ "3rd Person Field of View":"Campo de visión en 3.ª persona","Vehicle Field of View":"Campo de visión de vehículos",
+ "1st Person Camera Movement":"Movimiento de cámara en 1.ª persona","3rd Person Camera Movement":"Movimiento de cámara en 3.ª persona",
+ "3rd Person ADS Transition":"Transición al apuntar en 3.ª persona","Inverted Flashbang":"Granada cegadora invertida",
+ // NVIDIA
+ "Low Latency Mode":"Modo de baja latencia","Power Management Mode":"Modo de control de energía","Vertical Sync":"Sincronización vertical",
+ "Max Frame Rate":"Velocidad máxima de fotogramas","Texture Filtering – Quality":"Filtrado de texturas – Calidad","Anisotropic Filtering":"Filtrado anisotrópico",
+ "Antialiasing – Mode":"Antialiasing – Modo","Shader Cache Size":"Tamaño de caché de shaders","Image Scaling":"Escalado de imagen",
+ "Monitor Technology":"Tecnología del monitor","Preferred Refresh Rate":"Frecuencia de actualización preferida",
+ "DLSS Override – Model Presets":"Anulación de DLSS – Preajustes de modelo","DLSS Override – Frame Generation":"Anulación de DLSS – Generación de fotogramas",
+ "Set up G-SYNC":"Configurar G-SYNC","Change resolution → Refresh rate":"Cambiar resolución → Frecuencia de actualización",
+ "Change resolution → Output dynamic range":"Cambiar resolución → Rango dinámico de salida","Change resolution → Output color depth":"Cambiar resolución → Profundidad de color de salida",
+ // AMD
+ "Graphics Profile":"Perfil de gráficos","Wait for Vertical Refresh":"Esperar actualización vertical","Frame Rate Target Control":"Control de objetivo de fotogramas",
+ "Texture Filtering Quality":"Calidad de filtrado de texturas","Surface Format Optimization":"Optimización del formato de superficie",
+ "Tessellation Mode":"Modo de teselación","Shader Cache":"Caché de shaders","Virtual Super Resolution":"Superresolución virtual",
+ "GPU Scaling":"Escalado de GPU","Integer Scaling":"Escalado de enteros","Color Depth":"Profundidad de color","Pixel Format":"Formato de píxeles",
+ // Intel
+ "Frame Rate Limiter":"Limitador de fotogramas","Frame Generation (driver)":"Generación de fotogramas (driver)","Adaptive Sync":"Sincronización adaptativa",
+ "Refresh Rate":"Frecuencia de actualización","Quantization Range":"Rango de cuantización",
+ // Windows (Spanish Windows menus)
+ "System → Display → Graphics → Call of Duty":"Sistema → Pantalla → Gráficos → Call of Duty",
+ "System → Display → Graphics → Hardware-accelerated GPU scheduling":"Sistema → Pantalla → Gráficos → Programación de GPU acelerada por hardware",
+ "Gaming → Game Mode":"Juegos → Modo de juego",
+ "System → Display → Advanced display → Refresh rate":"Sistema → Pantalla → Pantalla avanzada → Frecuencia de actualización",
+ "System → Power → Power mode":"Sistema → Energía → Modo de energía"
+};
+const VAL_ES = {
+ "On":"Activado","Off":"Desactivado","High":"Alto","Normal":"Normal","Low":"Bajo","Very Low":"Muy bajo","Medium":"Medio",
+ "Custom":"Personalizado","Default":"Predeterminado","Automatic":"Automático","Auto":"Automático","Recommended":"Recomendado",
+ "Fullscreen Exclusive":"Pantalla completa exclusiva","Fullscreen Borderless":"Pantalla completa sin bordes",
+ "Efficiency":"Eficiencia","Optimal":"Óptimo","30 Seconds":"30 segundos","Minimal":"Mínimo","Standard":"Estándar",
+ "Affected":"Afectado","Wide":"Amplio","Minimal (25%)":"Mínimo (25%)","Default (100%)":"Predeterminado (100%)",
+ "All":"Todo","Water Caustics":"Cáusticas del agua","Cutscenes Only":"Solo cinemáticas",
+ "Quality":"Calidad","Balanced":"Equilibrado","Performance":"Rendimiento","DLAA (native quality)":"DLAA (calidad nativa)","Native AA":"AA nativo",
+ "3rd Person ADS":"Apuntado en 3.ª persona","On + Boost":"Activado + Boost",
+ "Your main monitor":"Tu monitor principal","The monitor you play on":"El monitor donde juegas",
+ "Only after updating your GPU driver":"Solo después de actualizar el driver de tu tarjeta",
+ "Dark areas visible without washing out bright ones":"Que veas lo oscuro sin que lo claro se vea lavado",
+ "See «Advanced Quality» tab":"Ver pestaña «Calidad avanzada»",
+ "Prefer Maximum Performance":"Preferir rendimiento máximo","Use the 3D application setting":"Usar la configuración de la aplicación 3D",
+ "High Quality":"Alta calidad","Application-controlled":"Controlado por la aplicación","Unlimited":"Ilimitado","Driver Default":"Predeterminado del driver",
+ "G-SYNC Compatible":"Compatible con G-SYNC","Fixed Refresh":"Frecuencia fija","Highest available":"La más alta disponible","Latest":"Más reciente",
+ "Not applicable":"No aplica","Full":"Completo","Limited":"Limitado",
+ "Enable G-SYNC, G-SYNC Compatible → Enable for windowed and full screen mode":"Habilitar G-SYNC, compatible con G-SYNC → Habilitar para modo de ventana y pantalla completa",
+ "Enable G-SYNC, G-SYNC Compatible → Enable for full screen mode":"Habilitar G-SYNC, compatible con G-SYNC → Habilitar para modo de pantalla completa",
+ "Off, unless application specifies":"Desactivado, a menos que la aplicación lo especifique","AMD Optimized":"Optimizado por AMD",
+ "Enabled":"Habilitado","Disabled":"Deshabilitado","Application Choice":"Elección de la aplicación",
+ "Let Windows decide":"Dejar que Windows decida","Best performance":"Máximo rendimiento","Balanced":"Equilibrado"
+};
+const NOTE_ES = {
+ "If you don't see this option, your monitor or Windows doesn't have HDR on. Nothing to do.":"Si no ves esta opción, tu monitor o Windows no tiene HDR activado. No tienes que hacer nada.",
+ "Change this FIRST; changing it later resets everything else":"Cámbialo PRIMERO; si lo cambias después, te resetea todo lo demás",
+ "Adds input lag; don't use it for multiplayer":"Añade input lag; no lo uses en multiplayer",
+ "Wider view; the app already accounts for the fps it costs":"Ves más por los lados; el app ya le restó los fps que cuesta",
+ "Bigger enemies, but less peripheral view":"Enemigos más grandes, pero ves menos por los lados",
+ "The in-game NVIDIA Reflex already handles this":"El NVIDIA Reflex del juego ya se encarga de esto",
+ "Keeps the card from downclocking mid-match":"Evita que la tarjeta baje de velocidad en medio de la partida",
+ "Leave off without G-Sync":"Sin G-Sync, déjalo apagado","The cap is already set in-game":"El límite ya lo pones dentro del juego",
+ "Sharper textures; almost no FPS cost":"Texturas más nítidas; casi no cuesta FPS","The in-game DLSS handles it":"El DLSS del juego se encarga",
+ "Fewer stutters while the game compiles shaders":"Menos stutters cuando el juego compila shaders","You already use DLSS":"Ya usas DLSS",
+ "Uses the newest DLSS model: sharper at the same performance":"Usa el modelo de DLSS más nuevo: más nítido con el mismo rendimiento",
+ "Adds input lag":"Añade input lag","Needed for G-Sync to work in Borderless":"Hace falta para que el G-Sync funcione en Borderless",
+ "Correct colors and blacks":"Colores y negros correctos","HYPR-RX off so you control each option":"HYPR-RX apagado para controlar cada opción",
+ "If the game has its own Anti-Lag 2, use that and leave this Off":"Si el juego tiene su propio Anti-Lag 2, usa ese y deja esto en Off",
+ "Limits your FPS":"Te limita los FPS","Lowers resolution when you move":"Baja la resolución cuando te mueves",
+ "You already use FSR in-game":"Ya usas FSR en el juego","The game already has Sharpness":"El juego ya tiene Nitidez",
+ "Can cause stutters with FreeSync":"Puede causar stutters con FreeSync","Sharper textures, almost no cost":"Texturas más nítidas, casi sin costo",
+ "If the game has its own low-latency mode, use that":"Si el juego tiene su propio modo de baja latencia, usa ese",
+ "Makes sure the game always uses your graphics card":"Así el juego siempre usa tu tarjeta de video",
+ "Make sure Windows isn't set to 60 Hz":"Verifica que Windows no esté en 60 Hz"
+};
+const HDR_ES = {
+ "General":"General","Details & Textures":"Detalles y texturas","Shadows":"Sombras","Lighting & Reflections":"Iluminación y reflejos",
+ "Advanced":"Avanzado","Windows (Settings)":"Windows (Configuración)",
+ "NVIDIA App → Graphics → Global Settings (or NVIDIA Control Panel → Manage 3D Settings)":"NVIDIA App → Gráficos → Configuración global (o Panel de control de NVIDIA → Administrar configuración 3D)",
+ "NVIDIA App → Graphics → Program Settings → Call of Duty":"NVIDIA App → Gráficos → Configuración de programa → Call of Duty",
+ "NVIDIA Control Panel → Display":"Panel de control de NVIDIA → Pantalla",
+ "AMD Software: Adrenalin → Gaming → Graphics (global or Call of Duty profile)":"AMD Software: Adrenalin → Juegos → Gráficos (global o perfil de Call of Duty)",
+ "AMD Software → Gaming → Display":"AMD Software → Juegos → Pantalla",
+ "Intel Graphics Software → Graphics":"Intel Graphics Software → Gráficos","Intel Graphics Software → Display":"Intel Graphics Software → Pantalla"
+};
+const es = (map,x) => state.lang==="es" && map[x] ? map[x] : x;
+const trN = x => es(NAME_ES,x), trNote = x => es(NOTE_ES,x), trH = x => es(HDR_ES,x);
+function trV(x){
+  if(state.lang!=="es") return x;
+  if(VAL_ES[x]) return VAL_ES[x];
+  // "NVIDIA DLSS → Quality", "Personalizado → Partida 141", etc.: translate the part after the arrow
+  const m = x.match(/^(.*?) → (.*)$/); if(m && VAL_ES[m[2]]) return m[1]+" → "+VAL_ES[m[2]];
+  return x;
+}
+
 // ---------- State ----------
 const $ = id => document.getElementById(id);
-let state = {gpu:"", cpu:"", ramGb:"", ramType:"", ramSpeed:0, res:"", hz:0, vrr:false, dual:false, fov:0, mode:"mp", tab:"display"};
+let state = {gpu:"", cpu:"", ramGb:"", ramType:"", ramSpeed:0, res:"", hz:0, vrr:false, dual:false, fov:0, mode:"mp", tab:"display", lang:""};
 try{ const saved = JSON.parse(localStorage.getItem("mw4opt")||"null"); if(saved) state = Object.assign(state,saved); }catch(e){}
 function save(){ try{ localStorage.setItem("mw4opt", JSON.stringify(state)); }catch(e){} }
+if(!state.lang) state.lang = ((navigator.language||"").toLowerCase().startsWith("es")) ? "es" : "en";
 // saved names from older versions: map to the new list, or clear so the person picks again
 (function(){
   const has=n=>CPUS.some(c=>c[0]===n);
@@ -326,7 +486,7 @@ function save(){ try{ localStorage.setItem("mw4opt", JSON.stringify(state)); }ca
   if(state.gpu && !GPUS.some(g=>g[0]===state.gpu)) state.gpu="";
 })();
 
-[$("gpu"),$("cpu")].forEach(sel=>{const o=document.createElement("option");o.value="";o.textContent="Select…";sel.appendChild(o);});
+[$("gpu"),$("cpu")].forEach(sel=>{const o=document.createElement("option");o.value="";o.textContent="Select…";o.dataset.i18n="select";sel.appendChild(o);});
 GPUS.forEach(g=>{const o=document.createElement("option");o.textContent=g[0];$("gpu").appendChild(o);});
 { const groups={}; CPUS.forEach(c=>{ if(!groups[c[2]]){ const g=document.createElement("optgroup"); g.label=c[2]; $("cpu").appendChild(g); groups[c[2]]=g; }
     const o=document.createElement("option"); o.textContent=c[0]; groups[c[2]].appendChild(o); }); }
@@ -339,12 +499,15 @@ function bindUI(){
   $("res").value=state.res; $("vrr").checked=state.vrr; $("dual").checked=state.dual;
   [["mode","mode"]].forEach(([id,k])=>{[...$(id).children].forEach(b=>b.classList.toggle("on",b.dataset.v===state[k]));});
   [...$("tabs").children].forEach(b=>b.classList.toggle("on",b.dataset.t===state.tab));
+  [...$("lang").children].forEach(b=>b.classList.toggle("on",b.dataset.v===state.lang));
+  applyStatic();
 }
 ["gpu","cpu","ramGb","ramType","res"].forEach(id=>$(id).addEventListener("change",e=>{state[id]=e.target.value;run();}));
 ["ramSpeed","hz","fov"].forEach(id=>$(id).addEventListener("input",e=>{state[id]=+e.target.value||0;run();}));
 $("vrr").addEventListener("change",e=>{state.vrr=e.target.checked;run();});
 $("dual").addEventListener("change",e=>{state.dual=e.target.checked;run();});
 ["mode"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target.dataset.v){state[id]=e.target.dataset.v;run();}}));
+$("lang").addEventListener("click",e=>{if(e.target.dataset.v){state.lang=e.target.dataset.v;run();}});
 $("tabs").addEventListener("click",e=>{if(e.target.dataset.t){state.tab=e.target.dataset.t;run();}});
 
 // ---------- Engine ----------
@@ -413,12 +576,12 @@ function build(e){
   const low = k => e.lowered.includes(k) ? "fps" : "";
   // [name, value, default, note, flag]  flag "fps" = lowered to hit your meta
   const display=[
-   state.dual ? ["Display Mode","Fullscreen Borderless","—","Best with two monitors: Alt+Tab and moving the mouse to the other screen is instant, no flicker"]
-              : ["Display Mode","Fullscreen Exclusive","Fullscreen Borderless","Slightly lower input lag with a single monitor"],
+   state.dual ? ["Display Mode","Fullscreen Borderless","—",t("Best with two monitors: Alt+Tab and moving the mouse to the other screen is instant, no flicker","Lo mejor con dos monitores: Alt+Tab y mover el mouse a la otra pantalla es instantáneo, sin parpadeo")]
+              : ["Display Mode","Fullscreen Exclusive","Fullscreen Borderless",t("Slightly lower input lag with a single monitor","Un poquito menos de input lag con un solo monitor")],
    ["Display Monitor",state.dual?"The monitor you play on":"Your main monitor","—"],
    ["Display Adapter",state.gpu,"—"],
-   ["Screen Refresh Rate",hz+" Hz","Auto",state.dual?"In Borderless this follows Windows; set "+hz+" Hz in Windows (see Card & Windows tab)":""],
-   ["Display Resolution","Native ("+({1080:"1920×1080",1440:"2560×1440",2160:"3840×2160"})[state.res]+")","Auto"],
+   ["Screen Refresh Rate",hz+" Hz","Auto",state.dual?t("In Borderless this follows Windows; set "+hz+" Hz in Windows (see Card & Windows tab)","En Borderless esto lo decide Windows; pon "+hz+" Hz en Windows (ver pestaña Tarjeta + Windows)"):""],
+   ["Display Resolution",t("Native (","Nativa (")+({1080:"1920×1080",1440:"2560×1440",2160:"3840×2160"})[state.res]+")","Auto"],
    ["Aspect Ratio","Automatic","Automatic"],
    ["Background Shader Preloading","On","On"],
    ["Restart Shader Preloading","Only after updating your GPU driver","—"],
@@ -427,7 +590,7 @@ function build(e){
    [nv?"NVIDIA Reflex Low Latency":"Low Latency (Reflex / Anti-Lag)", nv?"On + Boost":"On", nv?"On":"—"],
    ["V-Sync (Gameplay)","Off","Off"],
    ["V-Sync (Menus)","100%","100%"],
-   ["Custom Frame Rate Limit","Custom → Gameplay "+cap,"Custom", state.vrr?"3 below "+hz+" so G-Sync/FreeSync never turns off":"No G-Sync/FreeSync: same as your Hz"],
+   ["Custom Frame Rate Limit",t("Custom → Gameplay ","Personalizado → Partida ")+cap,"Custom", state.vrr?t("3 below "+hz+" so G-Sync/FreeSync never turns off","3 por debajo de "+hz+" para que el G-Sync/FreeSync nunca se apague"):t("No G-Sync/FreeSync: same as your Hz","Sin G-Sync/FreeSync: igual a tus Hz")],
    ["Eco Mode Preset","Efficiency","Efficiency"],
    ["Reduce Menu Render Resolution","Optimal","Optimal"],
    ["Pause Game Rendering","Off","Off"],
@@ -454,7 +617,7 @@ function build(e){
    ["#General"],
    ["VRAM Scale Target",String(vramT),"—"],
    ["#Details & Textures"],
-   ["Texture Resolution",tex,"—","Based on your card's "+e.vram+" GB; barely affects fps"],
+   ["Texture Resolution",tex,"—",t("Based on your card's "+e.vram+" GB; barely affects fps","Según los "+e.vram+" GB de tu tarjeta; casi no afecta los fps")],
    A("Texture Filter Anisotropic","tex_aniso"),
    A("Detail Quality","detail"),
    A("Particle Resolution","particle"),
@@ -496,7 +659,7 @@ function build(e){
    ["#NVIDIA App → Graphics → Global Settings (or NVIDIA Control Panel → Manage 3D Settings)"],
    ["Low Latency Mode","Off","Off","The in-game NVIDIA Reflex already handles this"],
    ["Power Management Mode","Prefer Maximum Performance","Normal","Keeps the card from downclocking mid-match"],
-   ["Vertical Sync",state.vrr?"On":"Off","Use the 3D application setting",state.vrr?"With G-Sync: V-Sync On here and Off in-game, plus the "+cap+" cap. No tearing, no extra lag":"Leave off without G-Sync"],
+   ["Vertical Sync",state.vrr?"On":"Off","Use the 3D application setting",state.vrr?t("With G-Sync: V-Sync On here and Off in-game, plus the "+cap+" cap. No tearing, no extra lag","Con G-Sync: V-Sync On aquí y Off en el juego, más el límite de "+cap+". Sin tearing ni lag extra"):"Leave off without G-Sync"],
    ["Max Frame Rate","Off","Off","The cap is already set in-game"],
    ["Texture Filtering – Quality","High Quality","Quality","Sharper textures; almost no FPS cost"],
    ["Anisotropic Filtering","Application-controlled","Application-controlled"],
@@ -510,7 +673,7 @@ function build(e){
    ["DLSS Override – Frame Generation","Off","Off","Adds input lag"],
    ["#NVIDIA Control Panel → Display"],
    ["Set up G-SYNC",state.vrr?(state.dual?"Enable G-SYNC, G-SYNC Compatible → Enable for windowed and full screen mode":"Enable G-SYNC, G-SYNC Compatible → Enable for full screen mode"):"Not applicable","—",state.vrr&&state.dual?"Needed for G-Sync to work in Borderless":""],
-   ["Change resolution → Refresh rate",(state.hz||60)+" Hz","—","Make sure it's not on 60 Hz"],
+   ["Change resolution → Refresh rate",(state.hz||60)+" Hz","—",t("Make sure it's not on 60 Hz","Verifica que no esté en 60 Hz")],
    ["Change resolution → Output dynamic range","Full","Limited","Correct colors and blacks"],
    ["Change resolution → Output color depth","Highest available","—"]
   ];
@@ -552,7 +715,7 @@ function build(e){
   ];
   driver.push(
    ["#Windows (Settings)"],
-   ["System → Display → Graphics → Call of Duty","High performance ("+state.gpu+")","Let Windows decide","Makes sure the game always uses your graphics card"],
+   ["System → Display → Graphics → Call of Duty",t("High performance (","Alto rendimiento (")+state.gpu+")","Let Windows decide","Makes sure the game always uses your graphics card"],
    ["System → Display → Graphics → Hardware-accelerated GPU scheduling","On","On"],
    ["Gaming → Game Mode","On","On"],
    ["System → Display → Advanced display → Refresh rate",(state.hz||60)+" Hz","—","Make sure Windows isn't set to 60 Hz"],
@@ -571,49 +734,51 @@ function run(){
   $("empty").style.display = ready ? "none" : "";
   $("results").style.display = ready ? "" : "none";
   if(!ready) return;
-  $("driverTab").textContent = driverLabel()+" + Windows";
+  $("driverTab").textContent = (state.lang==="es"?driverLabel().replace("Intel Graphics","Intel Graphics"):driverLabel())+" + Windows";
   const e=estimate(), b=build(e);
   const over=e.fps-e.target;
   $("estFps").textContent="~"+e.fps;
   $("estFps").className="v "+(e.reached && !e.cpuLimited?"ok":"warn");
   $("estSub").textContent = e.cpuLimited
-    ? "Your CPU tops out at ~"+Math.floor(e.cpuCap)+" here; target "+e.target
-    : e.reached ? "Target "+e.target+" · "+(over>=0?"+":"")+over+" headroom"
-                : "Can't reach "+e.target+" even at lowest";
-  $("tierName").textContent = e.lowered.length ? e.lowered.length+" lowered" : "All maxed";
-  $("tierSub").textContent = (e.lowered.length?"Everything else maxed":"FPS to spare")+" · "+b.upName+" "+b.upMode;
+    ? t("Your CPU tops out at ~"+Math.floor(e.cpuCap)+" here; target "+e.target,"Tu CPU no pasa de ~"+Math.floor(e.cpuCap)+" aquí; meta "+e.target)
+    : e.reached ? t("Target ","Meta ")+e.target+" · "+(over>=0?"+":"")+over+t(" headroom"," de colchón")
+                : t("Can't reach "+e.target+" even at lowest","No llegas a "+e.target+" ni en lo más bajo");
+  $("tierName").textContent = e.lowered.length ? e.lowered.length+t(" lowered"," bajados") : t("All maxed","Todo al máximo");
+  $("tierSub").textContent = (e.lowered.length?t("Everything else maxed","El resto al máximo"):t("FPS to spare","Te sobran FPS"))+" · "+b.upName+" "+trV(b.upMode);
   $("capVal").textContent = b.cap;
 
   const A=[];
-  if(state.ramType==="ddr5" && state.ramSpeed<6000) A.push(["warn","<b>Your RAM is running at "+state.ramSpeed+" MT/s.</b> If your sticks are rated for 6000, enable <b>EXPO</b> (AMD) or <b>XMP</b> (Intel) in the BIOS. It's free performance."]);
-  if(state.ramType==="ddr4" && state.ramSpeed<3200) A.push(["warn","<b>Your DDR4 RAM is running at "+state.ramSpeed+" MT/s.</b> Enable <b>XMP/DOCP</b> in the BIOS so it runs at its rated speed (3200–3600)."]);
-  if(+state.ramGb<16) A.push(["bad","<b>8 GB of RAM is too little for MW4.</b> You'll get stutters even with everything low; 16 GB or more is ideal."]);
-  if(e.cpuLimited) A.push(["warn","<b>Your CPU is the limit here (~"+Math.floor(e.cpuCap)+" fps), not the graphics.</b> Lowering more settings won't add fps, so the app kept graphics as high as possible for that number. "+(state.mode==="wz"?"In Multiplayer the CPU works less and you do reach it.":"")]);
-  else if(!e.reached) A.push(["warn","<b>Even with everything low you can't reach "+e.target+" fps.</b> Lower the resolution or set the cap to "+Math.max(30,Math.floor(e.fps/5)*5)+"."]);
+  if(state.ramType==="ddr5" && state.ramSpeed<6000) A.push(["warn",t("<b>Your RAM is running at "+state.ramSpeed+" MT/s.</b> If your sticks are rated for 6000, enable <b>EXPO</b> (AMD) or <b>XMP</b> (Intel) in the BIOS. It's free performance.","<b>Tu RAM está corriendo a "+state.ramSpeed+" MT/s.</b> Si tus memorias son de 6000, activa <b>EXPO</b> (AMD) o <b>XMP</b> (Intel) en el BIOS. Es rendimiento gratis.")]);
+  if(state.ramType==="ddr4" && state.ramSpeed<3200) A.push(["warn",t("<b>Your DDR4 RAM is running at "+state.ramSpeed+" MT/s.</b> Enable <b>XMP/DOCP</b> in the BIOS so it runs at its rated speed (3200–3600).","<b>Tu RAM DDR4 está corriendo a "+state.ramSpeed+" MT/s.</b> Activa <b>XMP/DOCP</b> en el BIOS para que corra a su velocidad real (3200–3600).")]);
+  if(+state.ramGb<16) A.push(["bad",t("<b>8 GB of RAM is too little for MW4.</b> You'll get stutters even with everything low; 16 GB or more is ideal.","<b>8 GB de RAM es muy poco para MW4.</b> Vas a tener stutters aunque bajes todo; lo ideal son 16 GB o más.")]);
+  if(e.cpuLimited) A.push(["warn",t("<b>Your CPU is the limit here (~"+Math.floor(e.cpuCap)+" fps), not the graphics.</b> Lowering more settings won't add fps, so the app kept graphics as high as possible for that number. "+(state.mode==="wz"?"In Multiplayer the CPU works less and you do reach it.":""),"<b>Aquí el límite es tu CPU (~"+Math.floor(e.cpuCap)+" fps), no los gráficos.</b> Bajar más settings no te da más fps, así que el app dejó los gráficos lo más altos posible para esa cifra. "+(state.mode==="wz"?"En Multiplayer el CPU trabaja menos y sí llegas.":""))]);
+  else if(!e.reached) A.push(["warn",t("<b>Even with everything low you can't reach "+e.target+" fps.</b> Lower the resolution or set the cap to ","<b>Ni con todo bajo llegas a "+e.target+" fps.</b> Baja la resolución o pon el límite en ")+Math.max(30,Math.floor(e.fps/5)*5)+"."]);
 
 
   $("alerts").innerHTML=A.map(a=>'<div class="alert '+a[0]+'">'+a[1]+'</div>').join("");
 
   const rows=b[state.tab]; let n=0, html="", pendingHeader=null;
   rows.forEach(r=>{
-    if(r[0].startsWith("#")){ pendingHeader=r[0].slice(1); return; }
+    if(r[0].startsWith("#")){ pendingHeader=trH(r[0].slice(1)); return; }
     const known=r[2]&&r[2]!=="—", change=known&&r[1]!==r[2], fps=r[4]==="fps";
     if(known && !change && !fps) return;               // already at the right value by default → skip
     if(pendingHeader){ html+='<tr class="sub"><td colspan="4">'+pendingHeader+'</td></tr>'; pendingHeader=null; }
     n++;
-    const tag = fps ? '<span class="tag chg" style="background:var(--warn)">Lowered for FPS</span>' : change ? '<span class="tag chg">Change</span>' : '';
-    html+='<tr><td class="n">'+n+'</td><td>'+r[0]+(r[3]?'<div class="note">'+r[3]+'</div>':'')+'</td><td class="val">'+r[1]+(change?'<div class="note">Default: '+r[2]+'</div>':'')+'</td><td>'+tag+'</td></tr>';
+    const tag = fps ? '<span class="tag chg" style="background:var(--warn)">'+t("Lowered for FPS","Bajado por FPS")+'</span>' : change ? '<span class="tag chg">'+t("Change","Cambiar")+'</span>' : '';
+    const nm=trN(r[0]), en=(state.lang==="es"&&nm!==r[0])?'<div class="en-name">'+r[0]+'</div>':'';
+    html+='<tr><td class="n">'+n+'</td><td>'+nm+en+(r[3]?'<div class="note">'+trNote(r[3])+'</div>':'')+'</td><td class="val">'+trV(r[1])+(change?'<div class="note">'+t("Default","Predeterminado")+': '+trV(r[2])+'</div>':'')+'</td><td>'+tag+'</td></tr>';
   });
-  if(!html) html='<tr><td colspan="4" class="note">Nothing to change here: everything stays at default.</td></tr>';
+  if(!html) html='<tr><td colspan="4" class="note">'+t("Nothing to change here: everything stays at default.","Nada que cambiar aquí: todo se queda en default.")+'</td></tr>';
   $("tbody").innerHTML=html;
-  $("footNote").textContent = state.tab==="advanced" ? "In Advanced Quality the default depends on the preset; set all of these values."
-    : state.tab==="driver" ? "These are general driver settings, not MW4-specific. If an option doesn't appear with that name, it may be in another menu depending on your driver version." : "";
+  $("footNote").textContent = state.tab==="advanced" ? t("In Advanced Quality the default depends on the preset; set all of these values.","En Calidad avanzada el valor predeterminado depende del preajuste; pon todos estos valores.")
+    : state.tab==="driver" ? t("These are general driver settings, not MW4-specific. If an option doesn't appear with that name, it may be in another menu depending on your driver version.","Estas opciones son de los drivers en general, no solo de MW4. Si alguna no aparece con ese nombre, puede estar en otro menú según tu versión del driver.")
+    : state.lang==="es" ? "Los nombres en español pueden variar un poco en tu juego; debajo de cada uno está el nombre en inglés como referencia." : "";
 }
 
 // ---------- RAM helper ----------
 $("copyPs").addEventListener("click",()=>{
-  navigator.clipboard.writeText($("psCmd").textContent).then(()=>{$("copyPs").textContent="Copied!";setTimeout(()=>$("copyPs").textContent="Copy command",1500);})
-   .catch(()=>{$("copyPs").textContent="Select it and copy manually";});
+  navigator.clipboard.writeText($("psCmd").textContent).then(()=>{$("copyPs").textContent=t("Copied!","¡Copiado!");setTimeout(()=>$("copyPs").textContent=t("Copy command","Copiar comando"),1500);})
+   .catch(()=>{$("copyPs").textContent=t("Select it and copy manually","Selecciónalo y cópialo a mano");});
 });
 function partCheck(){
   const raw=$("partNum").value.trim();
@@ -621,18 +786,19 @@ function partCheck(){
   if(!raw){ out.innerHTML=""; return; }
   const pn=raw.split(/\s+/).filter(x=>/[0-9]/.test(x)&&x.length>5).pop()||raw;
   const q=encodeURIComponent(pn+" RAM speed MT/s");
-  let html='<a href="https://www.google.com/search?q='+q+'" target="_blank" rel="noopener">🔎 Search «'+pn.replace(/[<>&"]/g,"")+'» on Google</a>';
+  let html='<a href="https://www.google.com/search?q='+q+'" target="_blank" rel="noopener">🔎 '+t('Search','Buscar')+' «'+pn.replace(/[<>&"]/g,"")+'» '+t('on Google','en Google')+'</a>';
   const m=pn.match(/(?:^|[^0-9])(2133|2400|2666|2933|3000|3200|3600|4000|4400|4800|5200|5600|6000|6200|6400|6600|6800|7200|7600|8000|8200|8400)(?![0-9])/);
   if(m){
     const rated=+m[1], cur=+state.ramSpeed||0;
-    html+='<div style="margin-top:6px">Looks like your RAM is rated for <b>'+rated+' MT/s</b> (confirm on Google). ';
-    if(cur && cur<rated) html+='<span class="warn">It\'s running at '+cur+': go into the BIOS and enable <b>EXPO</b> (AMD) or <b>XMP</b> (Intel).</span>';
-    else if(cur>=rated) html+='<span class="ok">It\'s already running at its rated speed. Nothing to do.</span>';
+    html+='<div style="margin-top:6px">'+t('Looks like your RAM is rated for <b>'+rated+' MT/s</b> (confirm on Google). ','Parece que tu RAM es de <b>'+rated+' MT/s</b> (confírmalo en Google). ');
+    if(cur && cur<rated) html+='<span class="warn">'+t('It\'s running at '+cur+': go into the BIOS and enable <b>EXPO</b> (AMD) or <b>XMP</b> (Intel).','Está corriendo a '+cur+': entra al BIOS y activa <b>EXPO</b> (AMD) o <b>XMP</b> (Intel).')+'</span>';
+    else if(cur>=rated) html+='<span class="ok">'+t('It\'s already running at its rated speed. Nothing to do.','Ya está corriendo a su velocidad. No tienes que hacer nada.')+'</span>';
     html+='</div>';
-  } else html+='<div class="note" style="margin-top:6px">Couldn\'t read the speed from the code; search it on Google and compare with the Task Manager number.</div>';
+  } else html+='<div class="note" style="margin-top:6px">'+t('Couldn\'t read the speed from the code; search it on Google and compare with the Task Manager number.','No pude sacar la velocidad del código; búscalo en Google y compáralo con el número del Task Manager.')+'</div>';
   out.innerHTML=html;
 }
 $("partNum").addEventListener("input",partCheck);
+$("lang").addEventListener("click",()=>setTimeout(partCheck,0));
 $("ramSpeed").addEventListener("input",partCheck);
 
 run();
