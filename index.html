@@ -191,14 +191,96 @@ const GPUS = [
  ["AMD RX 7700 XT",12,88],["AMD RX 9060 XT 16GB",16,84],["AMD RX 7600",8,58],["AMD RX 6800 XT",16,100],["AMD RX 6700 XT",12,72],
  ["AMD RX 6600",8,48],["Intel Arc B580",12,70],["Intel Arc A770",16,58]
 ];
-// CPU fps ceiling in heavy Warzone/DMZ scenes (Multiplayer ×1.3)
+// CPU fps ceiling in heavy Warzone/DMZ scenes (Multiplayer ×1.3): [name, cap, group]
 const CPUS = [
- ["AMD Ryzen 7 9800X3D",175],["AMD Ryzen 9 9950X3D",172],["AMD Ryzen 7 7800X3D",160],["AMD Ryzen 9 7950X3D",158],
- ["AMD Ryzen 7 9700X",140],["AMD Ryzen 5 9600X",132],["AMD Ryzen 7 7700X",135],["AMD Ryzen 5 7600X",128],
- ["AMD Ryzen 7 5800X3D",132],["AMD Ryzen 7 5700X3D",124],["AMD Ryzen 7 5800X",108],["AMD Ryzen 5 5600X",100],["AMD Ryzen 5 3600",78],
- ["Intel Core Ultra 9 285K",145],["Intel Core Ultra 7 265K",140],["Intel Core i9-14900K",150],["Intel Core i7-14700K",145],
- ["Intel Core i5-14600K",135],["Intel Core i7-13700K",140],["Intel Core i5-13600K",132],["Intel Core i5-13400F",108],
- ["Intel Core i5-12600K",118],["Intel Core i5-12400F",102],["Intel Core i7-10700K",92],["Intel Core i5-10400F",76]
+ ["AMD Ryzen 7 9800X3D",175,"AMD Ryzen 9000"],
+ ["AMD Ryzen 9 9950X3D",172,"AMD Ryzen 9000"],
+ ["AMD Ryzen 9 9900X3D",165,"AMD Ryzen 9000"],
+ ["AMD Ryzen 9 9950X",145,"AMD Ryzen 9000"],
+ ["AMD Ryzen 9 9900X",142,"AMD Ryzen 9000"],
+ ["AMD Ryzen 7 9700X",140,"AMD Ryzen 9000"],
+ ["AMD Ryzen 5 9600X",132,"AMD Ryzen 9000"],
+ ["AMD Ryzen 5 9600",128,"AMD Ryzen 9000"],
+ ["AMD Ryzen 7 7800X3D",160,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 9 7950X3D",158,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 9 7900X3D",150,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 5 7600X3D",150,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 9 7950X",140,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 9 7900X",137,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 9 7900",132,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 7 7700X",135,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 7 7700",132,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 5 7600X",128,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 5 7600",125,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 7 8700G",112,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 5 8600G",108,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 5 8400F",100,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 5 8500G",95,"AMD Ryzen 7000/8000"],
+ ["AMD Ryzen 7 5800X3D",132,"AMD Ryzen 5000"],
+ ["AMD Ryzen 7 5700X3D",124,"AMD Ryzen 5000"],
+ ["AMD Ryzen 5 5600X3D",122,"AMD Ryzen 5000"],
+ ["AMD Ryzen 5 5500X3D",115,"AMD Ryzen 5000"],
+ ["AMD Ryzen 9 5950X",112,"AMD Ryzen 5000"],
+ ["AMD Ryzen 9 5900X",110,"AMD Ryzen 5000"],
+ ["AMD Ryzen 7 5800X",108,"AMD Ryzen 5000"],
+ ["AMD Ryzen 7 5700X",105,"AMD Ryzen 5000"],
+ ["AMD Ryzen 5 5600X",100,"AMD Ryzen 5000"],
+ ["AMD Ryzen 5 5600",98,"AMD Ryzen 5000"],
+ ["AMD Ryzen 7 5700G",95,"AMD Ryzen 5000"],
+ ["AMD Ryzen 5 5600G",90,"AMD Ryzen 5000"],
+ ["AMD Ryzen 5 5500",88,"AMD Ryzen 5000"],
+ ["AMD Ryzen 9 3950X",85,"AMD Ryzen 3000"],
+ ["AMD Ryzen 9 3900X",84,"AMD Ryzen 3000"],
+ ["AMD Ryzen 7 3700X",80,"AMD Ryzen 3000"],
+ ["AMD Ryzen 5 3600X",79,"AMD Ryzen 3000"],
+ ["AMD Ryzen 5 3600",78,"AMD Ryzen 3000"],
+ ["Intel Core Ultra 9 285K",145,"Intel Core Ultra 200S"],
+ ["Intel Core Ultra 9 285",140,"Intel Core Ultra 200S"],
+ ["Intel Core Ultra 7 265K / 265KF",140,"Intel Core Ultra 200S"],
+ ["Intel Core Ultra 7 265 / 265F",135,"Intel Core Ultra 200S"],
+ ["Intel Core Ultra 5 245K / 245KF",130,"Intel Core Ultra 200S"],
+ ["Intel Core Ultra 5 245 / 245F",125,"Intel Core Ultra 200S"],
+ ["Intel Core Ultra 5 225 / 225F",112,"Intel Core Ultra 200S"],
+ ["Intel Core i9-14900KS",152,"Intel 14th Gen"],
+ ["Intel Core i9-14900K / 14900KF",150,"Intel 14th Gen"],
+ ["Intel Core i9-14900 / 14900F",140,"Intel 14th Gen"],
+ ["Intel Core i7-14700K / 14700KF",145,"Intel 14th Gen"],
+ ["Intel Core i7-14700 / 14700F",136,"Intel 14th Gen"],
+ ["Intel Core i5-14600K / 14600KF",135,"Intel 14th Gen"],
+ ["Intel Core i5-14600",125,"Intel 14th Gen"],
+ ["Intel Core i5-14500",120,"Intel 14th Gen"],
+ ["Intel Core i5-14400 / 14400F",112,"Intel 14th Gen"],
+ ["Intel Core i3-14100 / 14100F",95,"Intel 14th Gen"],
+ ["Intel Core i9-13900KS",150,"Intel 13th Gen"],
+ ["Intel Core i9-13900K / 13900KF",148,"Intel 13th Gen"],
+ ["Intel Core i9-13900 / 13900F",138,"Intel 13th Gen"],
+ ["Intel Core i7-13700K / 13700KF",140,"Intel 13th Gen"],
+ ["Intel Core i7-13700 / 13700F",133,"Intel 13th Gen"],
+ ["Intel Core i5-13600K / 13600KF",132,"Intel 13th Gen"],
+ ["Intel Core i5-13600",122,"Intel 13th Gen"],
+ ["Intel Core i5-13500",118,"Intel 13th Gen"],
+ ["Intel Core i5-13400 / 13400F",108,"Intel 13th Gen"],
+ ["Intel Core i3-13100 / 13100F",92,"Intel 13th Gen"],
+ ["Intel Core i9-12900KS",132,"Intel 12th Gen"],
+ ["Intel Core i9-12900K / 12900KF",128,"Intel 12th Gen"],
+ ["Intel Core i7-12700K / 12700KF",122,"Intel 12th Gen"],
+ ["Intel Core i7-12700 / 12700F",118,"Intel 12th Gen"],
+ ["Intel Core i5-12600K / 12600KF",118,"Intel 12th Gen"],
+ ["Intel Core i5-12600",110,"Intel 12th Gen"],
+ ["Intel Core i5-12500",106,"Intel 12th Gen"],
+ ["Intel Core i5-12400 / 12400F",102,"Intel 12th Gen"],
+ ["Intel Core i3-12100 / 12100F",88,"Intel 12th Gen"],
+ ["Intel Core i9-11900K / 11900KF",100,"Intel 11th Gen"],
+ ["Intel Core i7-11700K / 11700KF",96,"Intel 11th Gen"],
+ ["Intel Core i5-11600K / 11600KF",92,"Intel 11th Gen"],
+ ["Intel Core i5-11400 / 11400F",86,"Intel 11th Gen"],
+ ["Intel Core i9-10900K / 10900KF",96,"Intel 10th Gen"],
+ ["Intel Core i9-10850K",95,"Intel 10th Gen"],
+ ["Intel Core i7-10700K / 10700KF",92,"Intel 10th Gen"],
+ ["Intel Core i7-10700 / 10700F",90,"Intel 10th Gen"],
+ ["Intel Core i5-10600K / 10600KF",86,"Intel 10th Gen"],
+ ["Intel Core i5-10400 / 10400F",76,"Intel 10th Gen"],
+ ["Intel Core i3-10100 / 10100F",66,"Intel 10th Gen"]
 ];
 const RES_F = {1080:1.42,1440:1,2160:0.55};
 const ALL_MAX = 0.80/1.04/1.02;   // everything maxed incl. reflections
@@ -237,10 +319,17 @@ const $ = id => document.getElementById(id);
 let state = {gpu:"", cpu:"", ramGb:"", ramType:"", ramSpeed:0, res:"", hz:0, vrr:false, dual:false, fov:0, mode:"mp", tab:"display"};
 try{ const saved = JSON.parse(localStorage.getItem("mw4opt")||"null"); if(saved) state = Object.assign(state,saved); }catch(e){}
 function save(){ try{ localStorage.setItem("mw4opt", JSON.stringify(state)); }catch(e){} }
+// saved names from older versions: map to the new list, or clear so the person picks again
+(function(){
+  const has=n=>CPUS.some(c=>c[0]===n);
+  if(state.cpu && !has(state.cpu)){ const m=CPUS.find(c=>c[0].startsWith(state.cpu+" /")); state.cpu = m?m[0]:""; }
+  if(state.gpu && !GPUS.some(g=>g[0]===state.gpu)) state.gpu="";
+})();
 
 [$("gpu"),$("cpu")].forEach(sel=>{const o=document.createElement("option");o.value="";o.textContent="Select…";sel.appendChild(o);});
 GPUS.forEach(g=>{const o=document.createElement("option");o.textContent=g[0];$("gpu").appendChild(o);});
-CPUS.forEach(c=>{const o=document.createElement("option");o.textContent=c[0];$("cpu").appendChild(o);});
+{ const groups={}; CPUS.forEach(c=>{ if(!groups[c[2]]){ const g=document.createElement("optgroup"); g.label=c[2]; $("cpu").appendChild(g); groups[c[2]]=g; }
+    const o=document.createElement("option"); o.textContent=c[0]; groups[c[2]].appendChild(o); }); }
 
 function bindUI(){
   $("gpu").value=state.gpu; $("cpu").value=state.cpu; $("ramGb").value=state.ramGb; $("ramType").value=state.ramType;
