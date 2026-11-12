@@ -170,6 +170,7 @@ header .wrap{display:flex;align-items:center;justify-content:space-between;gap:1
           <button data-t="quality" data-i18n="t_quality">Quality</button>
           <button data-t="advanced" data-i18n="t_advanced">Advanced Quality</button>
           <button data-t="view" data-i18n="t_view">View</button>
+          <button data-t="iface" data-i18n="t_iface">Interface</button>
           <button data-t="driver" id="driverTab">NVIDIA App</button>
         </div>
       </div>
@@ -353,7 +354,7 @@ const STATIC_ES = {
  play:"Cómo juegas", fov:"Campo de visión (FOV)", mode:"Modo",
  empty_t:"Ya casi", empty:"Llena todos los campos de la izquierda (GPU, CPU, RAM, resolución, Hz y FOV) para ver los settings que tienes que cambiar.",
  k_fps:"FPS estimados", k_adj:"Ajustes", k_cap:"Límite de FPS",
- t_display:"Pantalla", t_quality:"Calidad", t_advanced:"Calidad avanzada", t_view:"Vista",
+ t_display:"Pantalla", t_quality:"Calidad", t_advanced:"Calidad avanzada", t_view:"Vista", t_iface:"Interfaz",
  th_set:"Ajuste", th_to:"Ponlo en", copycmd:"Copiar comando", select:"Seleccionar…",
  ph_ram:"ej. 6000", ph_part:"Pega tu PartNumber aquí", ph_hz:"ej. 144", ph_fov:"60–120 (ej. 105)"
 };
@@ -372,6 +373,9 @@ function applyStatic(){
 }
 // Setting names (best-effort Spanish; the English name is shown underneath)
 const NAME_ES = {
+ "Color Preset":"Preajuste de color","Blue colors (friendly)":"Colores azules (aliados)","Red colors (enemy)":"Colores rojos (enemigos)",
+ "All other colors":"Todos los demás colores","Contested Color":"Color disputado","Squad Member Color":"Color de miembro de escuadra",
+ "Color Filter":"Filtro de color","Color Filter Target":"Objetivo del filtro de color","World Color Intensity":"Intensidad de color del mundo",
  "Display Mode":"Modo de pantalla","Display Monitor":"Monitor","Display Adapter":"Adaptador de pantalla",
  "Screen Refresh Rate":"Frecuencia de actualización","Display Resolution":"Resolución de pantalla","Aspect Ratio":"Relación de aspecto",
  "Background Shader Preloading":"Precarga de shaders en segundo plano","Restart Shader Preloading":"Reiniciar precarga de shaders",
@@ -422,6 +426,7 @@ const NAME_ES = {
  "System → Power → Power mode":"Sistema → Energía → Modo de energía"
 };
 const VAL_ES = {
+ "Max":"Máximo","Leave default":"Déjalo en default","Filter 2":"Filtro 2","Both":"Ambos",
  "On":"Activado","Off":"Desactivado","High":"Alto","Normal":"Normal","Low":"Bajo","Very Low":"Muy bajo","Medium":"Medio",
  "Custom":"Personalizado","Default":"Predeterminado","Automatic":"Automático","Auto":"Automático","Recommended":"Recomendado",
  "Fullscreen Exclusive":"Pantalla completa exclusiva","Fullscreen Borderless":"Pantalla completa sin bordes",
@@ -464,7 +469,9 @@ const NOTE_ES = {
  "Can cause stutters with FreeSync":"Puede causar stutters con FreeSync","Sharper textures, almost no cost":"Texturas más nítidas, casi sin costo",
  "If the game has its own low-latency mode, use that":"Si el juego tiene su propio modo de baja latencia, usa ese",
  "Makes sure the game always uses your graphics card":"Así el juego siempre usa tu tarjeta de video",
- "Make sure Windows isn't set to 60 Hz":"Verifica que Windows no esté en 60 Hz"
+ "Make sure Windows isn't set to 60 Hz":"Verifica que Windows no esté en 60 Hz",
+ "Makes enemies and teammates pop out from the map":"Hace que los enemigos y tu equipo resalten del mapa",
+ "Everything except Contested and Squad Member":"Todos menos Contested y Squad Member"
 };
 const HDR_ES = {
  "General":"General","Details & Textures":"Detalles y texturas","Shadows":"Sombras","Lighting & Reflections":"Iluminación y reflejos",
@@ -474,6 +481,7 @@ const HDR_ES = {
  "NVIDIA Control Panel → Display":"Panel de control de NVIDIA → Pantalla",
  "AMD Software: Adrenalin → Gaming → Graphics (global or Call of Duty profile)":"AMD Software: Adrenalin → Juegos → Gráficos (global o perfil de Call of Duty)",
  "AMD Software → Gaming → Display":"AMD Software → Juegos → Pantalla",
+ "Interface → Readability → Color Customization":"Interfaz → Legibilidad → Personalización de colores",
  "Intel Graphics Software → Graphics":"Intel Graphics Software → Gráficos","Intel Graphics Software → Display":"Intel Graphics Software → Pantalla"
 };
 const es = (map,x) => state.lang==="es" && map[x] ? map[x] : x;
@@ -734,11 +742,23 @@ function build(e){
    ["System → Display → Advanced display → Refresh rate",(state.hz||60)+" Hz","—","Make sure Windows isn't set to 60 Hz"],
    ["System → Power → Power mode","Best performance","Balanced"]
   );
-  return {display,quality,advanced:adv,view,driver,cap,upName,upMode};
+  const iface=[
+   ["#Interface → Readability → Color Customization"],
+   ["Color Preset","Tritanopia","—","Makes enemies and teammates pop out from the map"],
+   ["Blue colors (friendly)","Max","—"],
+   ["Red colors (enemy)","Max","—"],
+   ["All other colors","Max","—","Everything except Contested and Squad Member"],
+   ["Contested Color","Leave default","—"],
+   ["Squad Member Color","Leave default","—"],
+   ["Color Filter","Filter 2","—"],
+   ["Color Filter Target","Both","—"],
+   ["World Color Intensity","85","—"]
+  ];
+  return {display,quality,advanced:adv,view,driver,iface,cap,upName,upMode};
 
 }
 
-const TABNAMES={display:"Display",quality:"Quality",advanced:"Advanced Quality",view:"View",driver:"Card & Windows"};
+const TABNAMES={display:"Display",quality:"Quality",advanced:"Advanced Quality",view:"View",driver:"Card & Windows",iface:"Interface"};
 function driverLabel(){ return state.gpu.startsWith("NVIDIA")?"NVIDIA App":state.gpu.startsWith("AMD")?"AMD Adrenalin":"Intel Graphics"; }
 
 function run(){
@@ -784,6 +804,7 @@ function run(){
   if(!html) html='<tr><td colspan="4" class="note">'+t("Nothing to change here: everything stays at default.","Nada que cambiar aquí: todo se queda en default.")+'</td></tr>';
   $("tbody").innerHTML=html;
   $("footNote").textContent = state.tab==="advanced" ? t("In Advanced Quality the default depends on the preset; set all of these values.","En Calidad avanzada el valor predeterminado depende del preajuste; pon todos estos valores.")
+    : state.tab==="iface" ? t("Same for everyone, no matter your PC.","Igual para todo el mundo, sin importar tu PC.")
     : state.tab==="driver" ? t("These are general driver settings, not MW4-specific. If an option doesn't appear with that name, it may be in another menu depending on your driver version.","Estas opciones son de los drivers en general, no solo de MW4. Si alguna no aparece con ese nombre, puede estar en otro menú según tu versión del driver.")
     : state.lang==="es" ? "Los nombres en español pueden variar un poco en tu juego; debajo de cada uno está el nombre en inglés como referencia." : "";
 }
