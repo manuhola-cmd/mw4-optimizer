@@ -78,12 +78,22 @@ header .wrap{display:flex;align-items:center;justify-content:space-between;gap:1
 .lang button{background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font:600 13px Inter;cursor:pointer}
 .lang button.on{background:var(--accent);color:#111;border-color:var(--accent)}
 .en-name{color:var(--muted);font-size:11.5px;font-style:italic}
+.news-btn{background:none;border:1px solid var(--line);color:var(--accent);border-radius:6px;padding:4px 10px;font:600 13px Inter,sans-serif;cursor:pointer;margin-left:8px}
+.news-btn:hover{border-color:var(--accent)}
+#news{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+#news.open{display:flex}
+#news .box{background:var(--panel);border:1px solid var(--accent2);border-radius:12px;max-width:520px;width:100%;max-height:85vh;overflow:auto;padding:20px 22px}
+#news h2{font-family:Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin:0 0 2px;font-size:22px}
+#news .ver{color:var(--muted);font-size:13px;margin-bottom:12px}
+#news ul{padding-left:18px;margin:0 0 16px}
+#news li{margin-bottom:8px;font-size:14.5px}
+#news .close{background:var(--accent);color:#111;border:0;border-radius:8px;padding:10px 16px;font:700 14px Inter,sans-serif;cursor:pointer;width:100%}
 </style>
 </head>
 <body>
 <header><div class="wrap">
   <h1>MW4 <span>FPS</span> Optimizer</h1>
-  <div class="lang" id="lang"><button data-v="en">EN</button><button data-v="es">ES</button></div>
+  <div class="lang" id="lang"><button data-v="en">EN</button><button data-v="es">ES</button><button class="news-btn" id="newsBtn" type="button">What's new</button></div>
 </div></header>
 
 <main>
@@ -185,6 +195,7 @@ header .wrap{display:flex;align-items:center;justify-content:space-between;gap:1
   </section>
 </main>
 
+<div id="news" role="dialog" aria-modal="true" aria-label="What's new"><div class="box" id="newsBox"></div></div>
 <script>
 // ---------- Data ----------
 // score ≈ avg fps at 1440p, Balanced preset, native, GPU-bound (RX 9070 XT ≈ 133, PC Gamer)
@@ -865,7 +876,43 @@ $("partNum").addEventListener("input",partCheck);
 $("lang").addEventListener("click",()=>setTimeout(partCheck,0));
 $("ramSpeed").addEventListener("input",partCheck);
 
+// ---------- What's new popup ----------
+const VERSION = "2026.11.17";
+function newsHtml(){
+  const items = state.lang==="es" ? [
+    "<b>FPS más reales.</b> El cálculo se ajustó con una prueba real en una RTX 5060 Ti. Antes el app prometía hasta un 30% más FPS de los que sacabas, así que ahora puede que te baje más settings, pero vas a llegar a tu meta de verdad.",
+    "<b>Nuevo: NVIDIA DLSS Model</b> en la pestaña Calidad. Te dice si usar <b>CNN</b> (más liviano) o <b>Transformer</b> (más nítido, pero cuesta FPS).",
+    "<b>VRAM Scale Target ahora en 70.</b> Con 85 la memoria de la tarjeta se llenaba y daba tirones.",
+    "<b>Lista para revisar antes de jugar:</b> apagar lo que esté grabando (Discord, NVIDIA, Windows), confirmar que el juego use tu tarjeta de video y cómo revisarlo en el Task Manager.",
+    "<b>Qué bajar primero</b> si todavía no llegas a tu meta de FPS, en orden."
+  ] : [
+    "<b>More realistic FPS.</b> The math was recalibrated with a real test on an RTX 5060 Ti. The app used to promise up to 30% more FPS than you actually got, so it may lower more settings now, but you'll really hit your target.",
+    "<b>New: NVIDIA DLSS Model</b> in the Quality tab. Tells you whether to use <b>CNN</b> (lighter) or <b>Transformer</b> (sharper, but costs FPS).",
+    "<b>VRAM Scale Target is now 70.</b> At 85 the card's memory filled up and caused stutters.",
+    "<b>Pre-play checklist:</b> turn off anything recording (Discord, NVIDIA, Windows), make sure the game uses your graphics card, and how to check it in Task Manager.",
+    "<b>What to lower first</b> if you're still below your FPS target, in order."
+  ];
+  return '<div style="float:right" class="newslang"><button class="news-btn" data-v="en" type="button">EN</button><button class="news-btn" data-v="es" type="button">ES</button></div><h2>'+t("What's new","Qué hay de nuevo")+'</h2><div class="ver">'+t("Version ","Versión ")+VERSION+'</div><ul>'+
+    items.map(i=>'<li>'+i+'</li>').join("")+'</ul><button class="close" id="newsClose" type="button">'+t("Got it","Entendido")+'</button>';
+}
+function openNews(){ $("newsBox").innerHTML=newsHtml(); $("news").classList.add("open"); $("newsClose").focus(); }
+function closeNews(){ $("news").classList.remove("open"); try{ localStorage.setItem("mw4opt_seen",VERSION); }catch(e){} }
+$("newsBtn").addEventListener("click",openNews);
+$("news").addEventListener("click",e=>{
+  if(e.target.id==="news"||e.target.id==="newsClose") return closeNews();
+  const v=e.target.dataset&&e.target.dataset.v;
+  if(v && e.target.closest(".newslang")){ state.lang=v; run(); $("newsBtn").textContent=t("What's new","Novedades"); openNews(); }
+});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && $("news").classList.contains("open")) closeNews(); });
+$("lang").addEventListener("click",()=>setTimeout(()=>{
+  $("newsBtn").textContent=t("What's new","Novedades");
+  if($("news").classList.contains("open")) openNews();
+},0));
+
 run();
+$("newsBtn").textContent=t("What's new","Novedades");
+{ let seen=null; try{ seen=localStorage.getItem("mw4opt_seen"); }catch(e){}
+  if(seen!==VERSION) openNews(); }
 </script>
 </body>
 </html>
