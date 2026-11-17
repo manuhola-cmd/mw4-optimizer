@@ -305,10 +305,16 @@ const CPUS = [
 const RES_F = {1080:1.42,1440:1,2160:0.55};
 const ALL_MAX = 0.80/1.04/1.02;   // everything maxed incl. reflections
 const WINDOW = 5;       // land between meta and meta+5
+// Real-world calibration: an RTX 5060 Ti 16GB + 7800X3D at 1080p (Multiplayer, GPU at 98%)
+// measured ~135 fps where the raw model said ~194. Scale every GPU estimate down to match.
+const CAL = 0.70;
+// NVIDIA DLSS Transformer model costs fps vs CNN on mid-range cards
+const TRANSFORMER_COST = 1.08;
 
 // Each knob: levels best→fastest, fps gain of each step down, visual cost of each step down
 const KNOBS = {
  up:       {lv:["aa","q","b","p"],                 g:[1.22,1.107,1.126],  c:[3,5,8]},
+ dlssm:    {lv:["Transformer","CNN"],              g:[TRANSFORMER_COST],  c:[2]},
  vrs:      {lv:["Off","On"],                       g:[1.03],              c:[1]},
  tex_aniso:{lv:["High","Normal","Low"],            g:[1.005,1.005],       c:[2,3]},
  detail:   {lv:["High","Normal","Low"],            g:[1.04,1.02],         c:[2,4]},
@@ -330,7 +336,9 @@ const KNOBS = {
 };
 const KEYS = Object.keys(KNOBS);
 // Always start with everything at max (best look) and only lower what's needed
-function startLevels(){ const s={}; KEYS.forEach(k=>s[k]=0); return s; }
+function startLevels(){ const s={}; KEYS.forEach(k=>s[k]=0);
+  if(!(state.gpu||"").startsWith("NVIDIA")) s.dlssm=1;   // DLSS model only exists on NVIDIA
+  return s; }
 // DLSS/FSR Quality looks closer to native the higher the resolution
 function upCost(){ KNOBS.up.c[0] = {1080:4,1440:2,2160:1}[state.res]; }
 
@@ -460,7 +468,8 @@ const NOTE_ES = {
  "Leave off without G-Sync":"Sin G-Sync, déjalo apagado","The cap is already set in-game":"El límite ya lo pones dentro del juego",
  "Sharper textures; almost no FPS cost":"Texturas más nítidas; casi no cuesta FPS","The in-game DLSS handles it":"El DLSS del juego se encarga",
  "Fewer stutters while the game compiles shaders":"Menos stutters cuando el juego compila shaders","You already use DLSS":"Ya usas DLSS",
- "Uses the newest DLSS model: sharper at the same performance":"Usa el modelo de DLSS más nuevo: más nítido con el mismo rendimiento",
+ "Newest DLSS model: sharper, costs a few FPS (you have room)":"Modelo de DLSS más nuevo: más nítido, cuesta algunos FPS (te sobran)",
+ "Don't force the newest model: it costs FPS. The in-game DLSS Model setting handles it":"No fuerces el modelo más nuevo: cuesta FPS. El ajuste DLSS Model del juego se encarga",
  "Adds input lag":"Añade input lag","Needed for G-Sync to work in Borderless":"Hace falta para que el G-Sync funcione en Borderless",
  "Correct colors and blacks":"Colores y negros correctos","HYPR-RX off so you control each option":"HYPR-RX apagado para controlar cada opción",
  "If the game has its own Anti-Lag 2, use that and leave this Off":"Si el juego tiene su propio Anti-Lag 2, usa ese y deja esto en Off",
@@ -550,7 +559,7 @@ function fovGpu(){ return 1-(fovClamp()-105)*0.003; }   // 120 ≈ -4.5%
 function fovCpu(){ return 1-(fovClamp()-105)*0.0015; }  // 120 ≈ -2%
 function estimate(){
   const g = GPUS.find(x=>x[0]===state.gpu)||GPUS[0], c = CPUS.find(x=>x[0]===state.cpu)||CPUS[0];
-  const vram=g[1], base=g[2]*RES_F[state.res]*(state.mode==="wz"?0.9:1)*fovGpu();
+  const vram=g[1], base=g[2]*CAL*RES_F[state.res]*(state.mode==="wz"?0.9:1)*fovGpu();
   const cpuCap = c[1]*(state.mode==="mp"?1.3:1)*ramFactor()*fovCpu();
   const target = Math.max(30,state.hz||60);
   const cpuLimited = cpuCap < target;
@@ -592,7 +601,8 @@ function build(e){
   const upName = nv?"NVIDIA DLSS":intel?"Intel XeSS":"AMD FSR";
   const upMode = {aa: nv?"DLAA (native quality)":"Native AA", q:"Quality", b:"Balanced", p:"Performance"}[lv("up")];
   const hz=state.hz||60, cap = state.vrr ? Math.max(30,hz-3) : hz;
-  const vramT = e.vram>=16?85:e.vram>=12?80:e.vram>=8?75:70;
+  // 85 filled a 16 GB card to the top in real play; 70 leaves room for Windows, Discord and the browser
+  const vramT = e.vram>=8?70:60;
   const tex = e.vram>=12?"High":e.vram>=8?"Normal":"Low";
   const low = k => e.lowered.includes(k) ? "fps" : "";
   // [name, value, default, note, flag]  flag "fps" = lowered to hit your meta
@@ -625,6 +635,7 @@ function build(e){
    ["Ray Tracing","Off","Off"],
    ["Advanced Quality Settings","See «Advanced Quality» tab","—"],
    ["Resolution Scaling Technique",upName+" → "+upMode,"Filmic SMAA T2X","",low("up")],
+   ...(nv?[["NVIDIA DLSS Model",lv("dlssm"),"—",lv("dlssm")==="CNN"?t("Transformer looks a bit sharper but costs FPS; CNN is lighter","Transformer se ve un poco más nítido pero cuesta FPS; CNN es más liviano"):t("You have FPS to spare, so use the sharper model","Te sobran FPS, así que usa el modelo más nítido"),low("dlssm")]]:[]),
    ["Sharpness",{aa:"50",q:"60",b:"70",p:"80"}[lv("up")],"50"],
    ["Variable Rate Shading",lv("vrs"),"On","",low("vrs")],
    ["World Motion Blur","Off","Off"],
@@ -636,7 +647,7 @@ function build(e){
   const A=(n,k)=>[n,lv(k),"—","",low(k)];
   const adv=[
    ["#General"],
-   ["VRAM Scale Target",String(vramT),"—"],
+   ["VRAM Scale Target",String(vramT),"—",t("If it's higher, the card's memory fills up and you get stutters","Si está más alto, la memoria de la tarjeta se llena y te da tirones")],
    ["#Details & Textures"],
    ["Texture Resolution",tex,"—",t("Based on your card's "+e.vram+" GB; barely affects fps","Según los "+e.vram+" GB de tu tarjeta; casi no afecta los fps")],
    A("Texture Filter Anisotropic","tex_aniso"),
@@ -690,7 +701,9 @@ function build(e){
    ["Monitor Technology",state.vrr?"G-SYNC Compatible":"Fixed Refresh","—"],
    ["Preferred Refresh Rate","Highest available","Application-controlled"],
    ["#NVIDIA App → Graphics → Program Settings → Call of Duty"],
-   ["DLSS Override – Model Presets","Latest","Default","Uses the newest DLSS model: sharper at the same performance"],
+   lv("dlssm")==="Transformer"
+     ? ["DLSS Override – Model Presets","Latest","Default","Newest DLSS model: sharper, costs a few FPS (you have room)"]
+     : ["DLSS Override – Model Presets","Default","—","Don't force the newest model: it costs FPS. The in-game DLSS Model setting handles it"],
    ["DLSS Override – Frame Generation","Off","Off","Adds input lag"],
    ["#NVIDIA Control Panel → Display"],
    ["Set up G-SYNC",state.vrr?(state.dual?"Enable G-SYNC, G-SYNC Compatible → Enable for windowed and full screen mode":"Enable G-SYNC, G-SYNC Compatible → Enable for full screen mode"):"Not applicable","—",state.vrr&&state.dual?"Needed for G-Sync to work in Borderless":""],
@@ -786,6 +799,23 @@ function run(){
   if(+state.ramGb<16) A.push(["bad",t("<b>8 GB of RAM is too little for MW4.</b> You'll get stutters even with everything low; 16 GB or more is ideal.","<b>8 GB de RAM es muy poco para MW4.</b> Vas a tener stutters aunque bajes todo; lo ideal son 16 GB o más.")]);
   if(e.cpuLimited) A.push(["warn",t("<b>Your CPU is the limit here (~"+Math.floor(e.cpuCap)+" fps), not the graphics.</b> Lowering more settings won't add fps, so the app kept graphics as high as possible for that number. "+(state.mode==="wz"?"In Multiplayer the CPU works less and you do reach it.":""),"<b>Aquí el límite es tu CPU (~"+Math.floor(e.cpuCap)+" fps), no los gráficos.</b> Bajar más settings no te da más fps, así que el app dejó los gráficos lo más altos posible para esa cifra. "+(state.mode==="wz"?"En Multiplayer el CPU trabaja menos y sí llegas.":""))]);
   else if(!e.reached) A.push(["warn",t("<b>Even with everything low you can't reach "+e.target+" fps.</b> Lower the resolution or set the cap to ","<b>Ni con todo bajo llegas a "+e.target+" fps.</b> Baja la resolución o pon el límite en ")+Math.max(30,Math.floor(e.fps/5)*5)+"."]);
+
+  // Checklist: things the app can't see that eat FPS
+  const nvC = state.gpu.startsWith("NVIDIA");
+  A.push(["info",t(
+    "<b>Before you play, check these (the app can't see them):</b><ol style='margin:6px 0 0;padding-left:18px'>"+
+    "<li><b>Nothing recording in the background.</b> Discord: stop <b>Go Live</b> and turn off <b>User Settings → Clips → Enable Clips</b>."+(nvC?" NVIDIA App: Alt+Z → <b>Instant Replay</b> Off.":"")+" Windows: <b>Settings → Gaming → Captures → Record what happened</b> Off.</li>"+
+    "<li><b>The game uses your graphics card.</b> In-game <b>Display Adapter</b> = "+state.gpu+", and the monitor cable goes into the graphics card, not the motherboard.</li>"+
+    "<li><b>RAM at full speed.</b> EXPO (AMD) or XMP (Intel) on in the BIOS.</li>"+
+    "<li><b>Check with Task Manager</b> (Ctrl+Shift+Esc → Performance → GPU) while playing: <b>Video Encode</b> should be 0%. If <b>3D</b> is at 95–100%, the graphics card is the limit.</li></ol>",
+    "<b>Antes de jugar, revisa esto (el app no lo puede ver):</b><ol style='margin:6px 0 0;padding-left:18px'>"+
+    "<li><b>Que nada esté grabando.</b> Discord: para el <b>Go Live</b> y apaga <b>User Settings → Clips → Enable Clips</b>."+(nvC?" NVIDIA App: Alt+Z → <b>Instant Replay</b> Off.":"")+" Windows: <b>Settings → Gaming → Captures → Record what happened</b> Off.</li>"+
+    "<li><b>Que el juego use tu tarjeta de video.</b> En el juego, <b>Display Adapter</b> = "+state.gpu+", y el cable del monitor conectado a la tarjeta, no a la motherboard.</li>"+
+    "<li><b>RAM a su velocidad real.</b> EXPO (AMD) o XMP (Intel) activado en el BIOS.</li>"+
+    "<li><b>Confirma con el Task Manager</b> (Ctrl+Shift+Esc → Performance → GPU) mientras juegas: <b>Video Encode</b> tiene que estar en 0%. Si <b>3D</b> está en 95–100%, la tarjeta es el límite.</li></ol>")]);
+  A.push(["info",t(
+    "<b>These settings are a starting point, not a guarantee.</b> If you're still below "+e.target+": lower the <b>DLSS/upscaler preset</b> one step"+(nvC?", then set <b>DLSS Model → CNN</b>":"")+", then <b>Shader Quality → Low</b>, then <b>Texture Resolution → Normal</b>. Change one at a time and play a match after each.",
+    "<b>Estos settings son un punto de partida, no una garantía.</b> Si todavía no llegas a "+e.target+": baja un paso el <b>preset de DLSS/upscaler</b>"+(nvC?", después <b>DLSS Model → CNN</b>":"")+", después <b>Shader Quality → Low</b> y después <b>Texture Resolution → Normal</b>. Cambia uno a la vez y juega una partida después de cada cambio.")]);
 
 
   $("alerts").innerHTML=A.map(a=>'<div class="alert '+a[0]+'">'+a[1]+'</div>').join("");
