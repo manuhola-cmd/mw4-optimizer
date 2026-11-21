@@ -211,6 +211,7 @@ const GPUS = [
 ];
 // CPU fps ceiling in heavy Warzone/DMZ scenes (Multiplayer ×1.3): [name, cap, group]
 const CPUS = [
+ ["AMD Ryzen 7 9850X3D",180,"AMD Ryzen 9000"],
  ["AMD Ryzen 7 9800X3D",175,"AMD Ryzen 9000"],
  ["AMD Ryzen 9 9950X3D",172,"AMD Ryzen 9000"],
  ["AMD Ryzen 9 9900X3D",165,"AMD Ryzen 9000"],
@@ -324,7 +325,7 @@ const TRANSFORMER_COST = 1.08;
 
 // Each knob: levels best→fastest, fps gain of each step down, visual cost of each step down
 const KNOBS = {
- up:       {lv:["aa","q","b","p"],                 g:[1.22,1.107,1.126],  c:[3,5,8]},
+ up:       {lv:["aa","q","b","p","u"],             g:[1.22,1.107,1.126,1.15], c:[3,5,8,12]},
  dlssm:    {lv:["Transformer","CNN"],              g:[TRANSFORMER_COST],  c:[2]},
  vrs:      {lv:["Off","On"],                       g:[1.03],              c:[1]},
  tex_aniso:{lv:["High","Normal","Low"],            g:[1.005,1.005],       c:[2,3]},
@@ -452,7 +453,7 @@ const VAL_ES = {
  "Efficiency":"Eficiencia","Optimal":"Óptimo","30 Seconds":"30 segundos","Minimal":"Mínimo","Standard":"Estándar",
  "Affected":"Afectado","Wide":"Amplio","Minimal (25%)":"Mínimo (25%)","Default (100%)":"Predeterminado (100%)",
  "All":"Todo","Water Caustics":"Cáusticas del agua","Cutscenes Only":"Solo cinemáticas",
- "Quality":"Calidad","Balanced":"Equilibrado","Performance":"Rendimiento","DLAA (native quality)":"DLAA (calidad nativa)","Native AA":"AA nativo",
+ "Quality":"Calidad","Balanced":"Equilibrado","Performance":"Rendimiento","Ultra Performance":"Ultra rendimiento","DLAA (native quality)":"DLAA (calidad nativa)","Native AA":"AA nativo",
  "3rd Person ADS":"Apuntado en 3.ª persona","On + Boost":"Activado + Boost",
  "Your main monitor":"Tu monitor principal","The monitor you play on":"El monitor donde juegas",
  "Only after updating your GPU driver":"Solo después de actualizar el driver de tu tarjeta",
@@ -584,6 +585,7 @@ function estimate(){
     let bestReach=null, bestRatio=null;
     KEYS.forEach(k=>{
       const K=KNOBS[k], i=L[k]; if(i>=K.lv.length-1) return;
+      if(k==="up" && i>=3 && +state.res!==2160) return;   // Ultra Performance only looks OK at 4K
       const T=Object.assign({},L); T[k]=i+1; const f=eff(T), cost=K.c[i];
       if(f>=lo){ if(!bestReach || cost<bestReach.cost || (cost===bestReach.cost && f<bestReach.f)) bestReach={k,cost,f}; }
       const ratio=Math.log(K.g[i])/cost;
@@ -610,7 +612,7 @@ function build(e){
   const L=e.L, lv=k=>KNOBS[k].lv[L[k]];
   const nv=state.gpu.startsWith("NVIDIA"), intel=state.gpu.startsWith("Intel");
   const upName = nv?"NVIDIA DLSS":intel?"Intel XeSS":"AMD FSR";
-  const upMode = {aa: nv?"DLAA (native quality)":"Native AA", q:"Quality", b:"Balanced", p:"Performance"}[lv("up")];
+  const upMode = {aa: nv?"DLAA (native quality)":"Native AA", q:"Quality", b:"Balanced", p:"Performance", u:"Ultra Performance"}[lv("up")];
   const hz=state.hz||60, cap = state.vrr ? Math.max(30,hz-3) : hz;
   // 85 filled a 16 GB card to the top in real play; 70 leaves room for Windows, Discord and the browser
   const vramT = e.vram>=8?70:60;
@@ -647,7 +649,7 @@ function build(e){
    ["Advanced Quality Settings","See «Advanced Quality» tab","—"],
    ["Resolution Scaling Technique",upName+" → "+upMode,"Filmic SMAA T2X","",low("up")],
    ...(nv?[["NVIDIA DLSS Model",lv("dlssm"),"—",lv("dlssm")==="CNN"?t("Transformer looks a bit sharper but costs FPS; CNN is lighter","Transformer se ve un poco más nítido pero cuesta FPS; CNN es más liviano"):t("You have FPS to spare, so use the sharper model","Te sobran FPS, así que usa el modelo más nítido"),low("dlssm")]]:[]),
-   ["Sharpness",{aa:"50",q:"60",b:"70",p:"80"}[lv("up")],"50"],
+   ["Sharpness",{aa:"50",q:"60",b:"70",p:"80",u:"80"}[lv("up")],"50"],
    ["Variable Rate Shading",lv("vrs"),"On","",low("vrs")],
    ["World Motion Blur","Off","Off"],
    ["Weapon Motion Blur","Off","Off"],
@@ -811,6 +813,12 @@ function run(){
   if(e.cpuLimited) A.push(["warn",t("<b>Your CPU is the limit here (~"+Math.floor(e.cpuCap)+" fps), not the graphics.</b> Lowering more settings won't add fps, so the app kept graphics as high as possible for that number. "+(state.mode==="wz"?"In Multiplayer the CPU works less and you do reach it.":""),"<b>Aquí el límite es tu CPU (~"+Math.floor(e.cpuCap)+" fps), no los gráficos.</b> Bajar más settings no te da más fps, así que el app dejó los gráficos lo más altos posible para esa cifra. "+(state.mode==="wz"?"En Multiplayer el CPU trabaja menos y sí llegas.":""))]);
   else if(!e.reached) A.push(["warn",t("<b>Even with everything low you can't reach "+e.target+" fps.</b> Lower the resolution or set the cap to ","<b>Ni con todo bajo llegas a "+e.target+" fps.</b> Baja la resolución o pon el límite en ")+Math.max(30,Math.floor(e.fps/5)*5)+"."]);
 
+  // Latency reality check: PC latency can't go below one frame
+  { const f=Math.min(e.fps,e.target), ft=1000/f, lo2=Math.round(ft*1.4), hi2=Math.round(ft*1.7);
+    A.push(["info",t(
+      "<b>About input latency:</b> at "+f+" fps one frame takes "+ft.toFixed(1)+" ms, and the <b>PC Latency</b> number (NVIDIA overlay) can never go below one frame. With Reflex On + Boost, expect about <b>"+lo2+"–"+hi2+" ms</b>. Single-digit latency needs 200+ fps.",
+      "<b>Sobre la latencia:</b> a "+f+" fps cada frame dura "+ft.toFixed(1)+" ms, y el número de <b>PC Latency</b> (overlay de NVIDIA) nunca puede bajar de un frame. Con Reflex On + Boost, espera unos <b>"+lo2+"–"+hi2+" ms</b>. Latencia de un solo dígito necesita más de 200 fps.")]); }
+
   // Checklist: things the app can't see that eat FPS
   const nvC = state.gpu.startsWith("NVIDIA");
   A.push(["info",t(
@@ -877,16 +885,22 @@ $("lang").addEventListener("click",()=>setTimeout(partCheck,0));
 $("ramSpeed").addEventListener("input",partCheck);
 
 // ---------- What's new popup ----------
-const VERSION = "2026.11.17";
+const VERSION = "2026.11.21";
 function newsHtml(){
   const items = state.lang==="es" ? [
-    "<b>FPS más reales.</b> El cálculo se ajustó con una prueba real en una RTX 5060 Ti. Antes el app prometía hasta un 30% más FPS de los que sacabas, así que ahora puede que te baje más settings, pero vas a llegar a tu meta de verdad.",
+    "<b>Nuevo CPU: Ryzen 7 9850X3D</b> en la lista.",
+    "<b>DLSS/FSR Ultra Performance</b> para 4K. Si con Performance no llegas a tu meta, el app ahora puede bajar a Ultra Performance (solo a 4K, porque a 1080p y 1440p se ve muy borroso).",
+    "<b>Nota de latencia.</b> Te dice cuánta latencia es realista para tus FPS, para que no persigas un número imposible.",
+    "<i>Versión anterior (2026.11.17):</i> <b>FPS más reales.</b> El cálculo se ajustó con una prueba real en una RTX 5060 Ti. Antes el app prometía hasta un 30% más FPS de los que sacabas, así que ahora puede que te baje más settings, pero vas a llegar a tu meta de verdad.",
     "<b>Nuevo: NVIDIA DLSS Model</b> en la pestaña Calidad. Te dice si usar <b>CNN</b> (más liviano) o <b>Transformer</b> (más nítido, pero cuesta FPS).",
     "<b>VRAM Scale Target ahora en 70.</b> Con 85 la memoria de la tarjeta se llenaba y daba tirones.",
     "<b>Lista para revisar antes de jugar:</b> apagar lo que esté grabando (Discord, NVIDIA, Windows), confirmar que el juego use tu tarjeta de video y cómo revisarlo en el Task Manager.",
     "<b>Qué bajar primero</b> si todavía no llegas a tu meta de FPS, en orden."
   ] : [
-    "<b>More realistic FPS.</b> The math was recalibrated with a real test on an RTX 5060 Ti. The app used to promise up to 30% more FPS than you actually got, so it may lower more settings now, but you'll really hit your target.",
+    "<b>New CPU: Ryzen 7 9850X3D</b> added to the list.",
+    "<b>DLSS/FSR Ultra Performance</b> for 4K. If Performance can't hit your target, the app can now go down to Ultra Performance (4K only, since it looks too blurry at 1080p and 1440p).",
+    "<b>Latency note.</b> Tells you how much input latency is realistic for your FPS, so you don't chase an impossible number.",
+    "<i>Previous version (2026.11.17):</i> <b>More realistic FPS.</b> The math was recalibrated with a real test on an RTX 5060 Ti. The app used to promise up to 30% more FPS than you actually got, so it may lower more settings now, but you'll really hit your target.",
     "<b>New: NVIDIA DLSS Model</b> in the Quality tab. Tells you whether to use <b>CNN</b> (lighter) or <b>Transformer</b> (sharper, but costs FPS).",
     "<b>VRAM Scale Target is now 70.</b> At 85 the card's memory filled up and caused stutters.",
     "<b>Pre-play checklist:</b> turn off anything recording (Discord, NVIDIA, Windows), make sure the game uses your graphics card, and how to check it in Task Manager.",
